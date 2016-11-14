@@ -1,0 +1,39 @@
+{
+    "account_created": {
+        "preview": "Your manager account has been created.",
+        "text": "Your manager account has been created.\n\nYou can now login with this temporary password : \"--PASSWORD--\" on https://app.captiz.com/user/login",
+        "html": "Your manager account has been created.<br /><br />You can now login with this temporary password : \"<b>--PASSWORD--</b>\" on <a href='https://app.captiz.com/user/login'>Captiz platform</a>."
+    },
+
+    "invitation_translator": {
+        "preview": "You've been invited to a translation project.",
+        "text": "You've been invited to work on the project \"--PROJECT_NAME--\" as a translator to --TO_LANG--.\n\nPlease keep this e-mail as it contains a link to your dashboard and your password.\n\nTo work on the translation, please follow this link : https://app.captiz.com/freelance\n* Password : --PASSWORD--\nDeadline: --DEADLINE--\n\nIf you have any question regarding the use of your dashboard, please contact us on contact@captiz.com.",
+        "html": "You've been invited to work on the project \"--PROJECT_NAME--\" as a translator to --TO_LANG--.<br/><br/>Please keep this e-mail as it contains a link to your dashboard and your password.<br/><br/>To work on the translation, please follow this link :<h2 style=\"text-align:center;\"><a href=\"https://app.captiz.com/freelance\">My Dashboard</a></h2><ul><li>Password : --PASSWORD--</li><li>Deadline : --DEADLINE--</li></ul><br />If you have any question regarding the use of your dashboard, please contact us on <a href=\"mailto:contact@captiz.com\">contact@captiz.com</a>."
+    },
+    "invitation_transcriptor": {
+        "preview": "You've been invited to a transcription project.",
+        "text": "You've been invited to transcribe project \"--PROJECT_NAME--\" in --TO_LANG--.\n\nPlease keep this e-mail as it contains a link to your dashboard and your password.\n\nTo work on the transcription, please follow this link :https://app.captiz.com/freelance\n* Password : --PASSWORD--\nDeadline: --DEADLINE--\n\nIf you have any question regarding the use of your dashboard, please contact us on contact@captiz.com.",
+        "html": "You've been invited to transcribe project \"--PROJECT_NAME--\" in --TO_LANG--.<br/><br/>Please keep this e-mail as it contains a link to your dashboard and your password.<br/><br/>To work on the transcription, please follow this link :<h2 style=\"text-align:center;\"><a href=\"https://app.captiz.com/freelance\">My Dashboard</a></h2><ul><li>Password : --PASSWORD--</li><li>Deadline : --DEADLINE--</li></ul><br />If you have any question regarding the use of your dashboard, please contact us on <a href=\"mailto:contact@captiz.com\">contact@captiz.com</a>."
+    },
+
+    "project_timecodes_import": {
+        "preview": "Timecode import is finished.",
+        "text": "The timecodes import process for your project \"--PROJECT_NAME--\" is finished, you can now invite translators : https://app.captiz.com/project/--PROJECT_ID--/display",
+        "html": "The timecodes import process for your project \"--PROJECT_NAME--\" is finished, you can now invite translators !<br/><br/><h2 style=\"text-align:center;\"><a href=\"https://app.captiz.com/project/--PROJECT_ID--/display\">Invite translators</a></h2>"
+    },
+    "project_mission_declined": {
+        "preview": "Your mission validation has been declined.",
+        "text": "Your mission validation for the project \"--PROJECT_NAME--\" has been declined by the project manager.\n\nHere is the reason he gave :\n--REASON--\n\nTo work on the translation again, please follow this link : https://app.captiz.com/freelance",
+        "html": "Your mission validation for the project \"--PROJECT_NAME--\" has been declined by the project manager.<br/><br/>Here is the reason he gave :<br/>--REASON--<br/><br/>To work on the translation again, please follow this link :<h2 style=\"text-align:center;\"><a href=\"https://app.captiz.com/freelance\">My Dashboard</a></h2>"
+    },
+    "project_mission_marked_done": {
+        "preview": "A mission has been marked as done.",
+        "text": "The translator with e-mail address \"--EMAIL--\" has marked his mission as done for the projet \"--PROJECT_NAME--\".\n\nYou can now review his work by downloading subtitles on your dashboard.\n\nHe sends you the following message :\n--MESSAGE--",
+        "html": "The translator with e-mail address \"--EMAIL--\" has marked his mission as done for the projet \"--PROJECT_NAME--\".<br/><br/>You can now review his work by downloading subtitles on your dashboard.<br/><br/>He sends you the following message :<br />--MESSAGE--"
+    },
+    "project_mission_validated": {
+        "preview": "Your mission has been validated !",
+        "text": "Your mission for the project --PROJECT_NAME-- has been validated by the project manager !",
+        "html": "Your mission for the project --PROJECT_NAME-- has been validated by the project manager !"
+    }
+}

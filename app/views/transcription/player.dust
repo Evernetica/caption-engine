@@ -1,0 +1,54 @@
+<!--This file is part of Captiz.
+
+Captiz is free software: you can redistribute it and/or modify
+it under the terms of the Affero GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Captiz is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+Affero GNU General Public License for more details.
+
+You should have received a copy of the Affero GNU General Public License
+along with Captiz.  If not, see <http://www.gnu.org/licenses/>.-->
+
+<div class="row">
+    <div class="col-md-4">
+        <video id="video" class="video-js vjs-4-3" controls loop>
+            <p class="vjs-no-js">
+              To view this video please enable JavaScript, and consider upgrading to a web browser that
+              <a href="//videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
+            </p>
+        </video>
+    </div>
+    <div class="col-md-8">
+        <div id="spreadsheet"></div>
+    </div>
+</div>
+<br />
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="100%" style="background-color:#333333;padding:2px 0px;">
+            <button id="btn_bold" class="btn btn-warning btn-md" style="margin-left:10px;"><b>Bold</b></button> <button id="btn_italic" class="btn btn-warning btn-md"><i>Italic</i></button>
+
+            <div style="float:right;margin-right:10px;">
+                <button id="btn_remove" class="btn btn-primary btn-md">Remove</button> <button id="btn_split" class="btn btn-primary btn-md">Split</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12 mixedtextarea">
+        {#project.use_character}<span id="timecode_span"><input type="text" id="timecode_character" class="mousetrap" placeholder="Character name" /> - </span>{/project.use_character}<textarea rows="2" id="timecode_content" class="mousetrap"></textarea>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+
+    </div>
+</div>
+<div style="background-color:#333333;border-bottom:2px solid black;width:100%;height:30px;margin-top:5px;"></div>
+<canvas id="timelineCanvas" style="width:100%;height:150px;" resize></canvas>

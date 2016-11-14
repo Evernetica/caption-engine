@@ -1,0 +1,280 @@
+<!--This file is part of Captiz.
+
+Captiz is free software: you can redistribute it and/or modify
+it under the terms of the Affero GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Captiz is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+Affero GNU General Public License for more details.
+
+You should have received a copy of the Affero GNU General Public License
+along with Captiz.  If not, see <http://www.gnu.org/licenses/>.-->
+
+{#project.is_archived}
+{>"layouts/master"/}
+{:else}
+{>"layouts/projects"/}
+{/project.is_archived}
+
+{<title}Multiple video project{/title}
+
+{<custom_css}
+<link href="{base_url}css/bootstrap-table.min.css" rel="stylesheet">
+{/custom_css}
+
+{<body_header}
+<h1>
+    {project.getName}
+</h1>
+<ol class="breadcrumb">
+    <li><a href="{base_url}project"><i class="fa fa-tasks"></i> Projects</a></li>
+    <li>Multiple</a>
+</ol>
+{/body_header}
+
+{<body}
+  <div class="row">
+    <div class="col-md-5">
+        <div class="box">
+              <div class="box-header with-border">
+                  <h3 class="box-title">Project</h3>
+              </div><!-- /.box-header -->
+              <div class="box-body">
+                  {#project.is_archived}
+                  <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#confirmDelete">
+                  Delete definitely
+                  </button>
+                  {:else}
+                  <a href="{base_url}project/{project._id}/edit" class="btn btn-primary">Edit</a>&nbsp;
+                  <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#confirmDone">
+                      Archive
+                  </button>
+                  {/project.is_archived}
+
+                  &nbsp;<a class="btn btn-primary" href="{base_url}project/{project._id}/download/srt">Download SRTs</a>
+                  &nbsp;<a class="btn btn-primary" href="{base_url}project/{project._id}/download/vtt">Download VTTs</a>
+            </div><!-- /.box-body -->
+        </div> <!-- /.box -->
+    </div>
+
+    {^project.is_archived}
+    <div class="col-md-7">
+        <div class="box">
+              <div class="box-header with-border">
+                  <h3 class="box-title">Create a new sub-project</h3>
+              </div><!-- /.box-header -->
+              <div class="box-body">
+                  <form class="form-horizontal" method="POST" action="{base_url}project/create">
+                    <div class="form-inline">
+                      <label for="inputEpisode" class="control-label">I'm working on {project.getName} sub-project named : </label>&nbsp;&nbsp;
+                      <input type="text" required class="form-control" id="inputEpisode" name="episode" placeholder="Sub-project name/number" size="23" />&nbsp;&nbsp;
+                      .
+                    </div>
+                    <br />
+                    <div class="form-inline">
+                      <label for="inputDescription" class="control-label">I want translators to see instructions below :</label><br />
+                      <textarea class="form-control" rows="4" cols="40" id="inputDescription" name="description" style="width:100%"></textarea>
+                    </div>
+                    <input type="hidden" name="mediatype" value="EPISODE" />
+                    <input type="hidden" name="parent" value="{project._id}" />
+                    <input type="hidden" name="projectname" value="{project.getName}" />
+                    <button type="submit" class="btn btn-primary">Create</button>
+                  </form>
+            </div> <!-- /.box-body -->
+        </div><!-- /.box -->
+    </div>
+    {/project.is_archived}
+  </div>
+
+
+  <div class="row">
+    <div class="col-md-12">
+        <div class="box">
+              <div class="box-header with-border">
+                  <h3 class="box-title">Sub-projects</h3>
+              </div><!-- /.box-header -->
+              <div class="box-body">
+                  <table data-toggle="table"
+                    id="table_subprojects"
+                    data-locale="en-US"
+                    data-toolbar="#toolbar"
+                    data-striped="true"
+                    data-search="true"
+                    data-sort-name="project"
+                    data-show-columns="true"
+                    data-pagination="true"
+                    data-page-size="10"
+                    data-page-list="[5, 10, 25, 50, 100, ALL]"
+                    data-response-handler="responseHandler">
+                    <thead>
+                      <tr>
+                        <th data-field="project" data-sortable="true">Project</th>
+                        <th data-field="length" data-sortable="true">Length</th>
+                        <th data-field="action" data-sortable="false">Action</th>
+                        {#langs}
+                        <th data-sortable="true" data-cell-style="cellStyle">{.}</th>
+                        {/langs}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {#subprojects}
+                      <tr>
+                        <td>{getName}</td>
+                        <td>{video.duration} seconds</td>
+                        <td><a href="{base_url}project/{_id}/display">Open</a></td>
+                        {#jobs}
+                        <td title="{email}">
+                            {#email}
+                                {#accepted}
+                                    OK
+                                {:else}
+                                    {#done}
+                                        To check
+                                    {:else}
+                                        Working
+                                    {/done}
+                                {/accepted}
+                            {:else}
+                                No freelance
+                            {/email}
+                        </td>
+                        {/jobs}
+                      </tr>
+                      {/subprojects}
+                    </tbody>
+                  </table>
+              </div><!-- /.box-body -->
+        </div><!-- /.box -->
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+        <div class="box">
+              <div class="box-header with-border">
+                  <h3 class="box-title">Files</h3>
+              </div><!-- /.box-header -->
+              <div class="box-body">
+                  {^project.is_archived}
+                  <div>
+                    <form action="{base_url}file/upload/{project._id}" method="POST" enctype="multipart/form-data">
+                      Upload a new file : <input required name="file" id="file" type="file" /><br><input type="submit" class="btn btn-primary" value="Upload" /><br>
+                      <i>This file will concern all the episodes</i>
+                    </form>
+                  </div>
+                  {/project.is_archived}
+                  <br />
+                  {#files}
+                  <ul>
+                    <li><a href="{base_url}file/download/{id}"><b>{name}</b></a>{^project.isArchived}&nbsp;-&nbsp;<a style="color:red" href="{base_url}file/delete/{id}"><b>Delete</b></a>{/project.isArchived}</li>
+                  </ul>
+                  {/files}
+              </div> <!-- /.box-body -->
+        </div><!-- /.box -->
+    </div>
+  </div>
+
+
+  {^project.is_archived}
+  <div class="modal fade" id="confirmDone" tabindex="-1" role="dialog" aria-labelledby="confirmDoneLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title text-center" id="confirmDoneLabel">Choices</h4>
+        </div>
+        <div class="modal-body text-center">
+          <div class="row">
+            <div class="col-md-12">
+              <form action="{base_url}project/archive" method="post">
+                <input type="hidden" name="id" value="{project._id}" />
+                <input type="submit" class="btn btn-lg btn-primary" value="Archive" /><br>(All the associated episodes will be archived and all the videos will be removed)
+              </form>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  {:else}
+  <div class="modal fade" id="confirmDelete" tabindex="-1" role="dialog" aria-labelledby="confirmDeleteLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title text-center" id="confirmDoneLabel">Delete a project</h4>
+        </div>
+        <div class="modal-body text-center">
+          <div class="row">
+            <div class="col-md-12">
+              <form action="{base_url}project/archive/delete" method="post">
+                <input type="hidden" name="id" value="{project._id}" />
+                <input type="submit" class="btn btn-lg btn-danger" value="Delete" /><br>(WARNING : It will destroy completely the project !)
+              </form>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  {/project.is_archived}
+  {/body}
+
+  {<custom_js_2}
+  <script src="{base_url}js/3rd/bootstrap-table.min.js"></script>
+  <script src="{base_url}js/3rd/bootstrap-table-locale-all.min.js"></script>
+
+  <script>
+      function cellStyle(value, row, index, field) {
+          if(value == "No freelance")
+              return {
+                  classes: "",
+                  css: {"background-color": "red"}
+              };
+          else if(value == "OK") {
+              return {
+                  classes: "",
+                  css: {"background-color": "green"}
+              };
+          }
+          else if(value == "Working") {
+              return {
+                  classes: "",
+                  css: {"background-color": "orange"}
+              };
+          }
+          else if(value == "To check") {
+              return {
+                  classes: "",
+                  css: {"background-color": "yellow"}
+              };
+          }
+          else {
+              return {
+                  classes: "",
+                  css: {}
+              }
+          }
+      }
+
+      $(document).ready(function(){
+          $("#deadline_block").hide();
+          $("#inputSameDeadline").change(function(){
+            if($(this).is(':checked')){
+              $("#deadline_block").hide();
+            }
+            else {
+              $("#deadline_block").show();
+            }
+          });
+      });
+  </script>
+  {/custom_js_2}

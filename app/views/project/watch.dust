@@ -1,0 +1,90 @@
+<!--This file is part of Captiz.
+
+Captiz is free software: you can redistribute it and/or modify
+it under the terms of the Affero GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Captiz is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+Affero GNU General Public License for more details.
+
+You should have received a copy of the Affero GNU General Public License
+along with Captiz.  If not, see <http://www.gnu.org/licenses/>.-->
+
+<!DOCTYPE html>
+<!--
+This is a starter template page. Use this page to start your new project from
+scratch. This page gets rid of all links and provides the needed markup only.
+-->
+<html>
+<head>
+    <meta charset="utf-8">
+
+    <link href="//vjs.zencdn.net/5.9.2/video-js.min.css" rel="stylesheet">
+</head>
+<body>
+
+<video class="video-js vjs-16-9" id="videojs-watch" controls>
+  <p class="vjs-no-js">
+    To view this video please enable JavaScript, and consider upgrading to a web browser that
+    <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
+  </p>
+</video>
+
+<script src="//vjs.zencdn.net/5.9.2/video.min.js"></script>
+<script src="{base_url}js/videojs.plugin.s3.js"></script>
+
+<script>
+var player, captions_videojs;
+$(document).ready(function(){
+    player = videojs('videojs-watch', {
+        plugins: {
+            s3Secured: {
+                video_id: "{project._id}/full"
+            }
+        }
+    });
+    captions_videojs = player.addTextTrack('captions', 'Captiz captions', '');
+    captions_videojs.mode = "showing";
+
+    $.ajax({
+      url : '{base_url}project/{project._id}/timecodes/{job_code}',
+      type : 'GET',
+      dataType : 'json',
+      contentType: "application/json",
+      success: function (data) {
+          var cues, cues_length;
+
+          if(captions_videojs.cues!==null && typeof captions_videojs.cues === 'object'){
+              cues = captions_videojs.cues.cues_?captions_videojs.cues.cues_:$.extend(true, {}, captions_videojs.cues);
+              cues_length = cues.length?cues.length:cues.length_;
+          }
+          else if(Array.isArray(captions_videojs.cues_)){
+              console.log("array");
+              cues = captions_videojs.cues_.slice(0);
+              cues_length = cues.length;
+          }
+          else if(player.currentType()=="video/youtube" || player.currentType()=="video/vimeo"){
+              cues = $.extend(true, {}, captions_videojs.cues_);
+              cues_length = Object.keys(cues).length;
+          }
+
+
+          for(var i=0;i<cues_length;i++){
+              captions_videojs.removeCue(cues[i]);
+          }
+          for(var i = 0;i<data.timecodes.length;i++){
+              var t = data.timecodes[i];
+              captions_videojs.addCue(new VTTCue(t.seconds, t.seconds+t.length, t.original));
+          }
+      },
+      error: function (error) {
+        var x = error;
+      }
+    });
+});
+</script>
+
+</body>

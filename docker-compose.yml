@@ -1,0 +1,30 @@
+captiz_mongo:
+    container_name: captiz_mongo
+    image: mongo:latest
+    expose:
+        - "27017"
+    ports:
+      - "27017:27017"
+
+captiz_platform:
+  image: captiz/node
+  volumes:
+    - ./app/:/application
+  ports:
+    - "8001:8001"
+    - "8002:8002"
+  links:
+    - captiz_mongo:captiz_mongo
+  environment:
+    ENVIRONMENT: development
+    PORT: 8001
+    MONGO_HOST: captiz_mongo:27017
+    MONGO_DB: captiz_dev
+    NODE_PATH: /application/libs
+    ENV: DEV
+    SSL_KEY_PATH: dev_key.pem
+    SSL_CERT_PATH: dev_cert.pem
+
+    SENDGRID_API_KEY: mykey
+    SENDGRID_TEMPLATE_ID: mytemplate
+  command: node server.js

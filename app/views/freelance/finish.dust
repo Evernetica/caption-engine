@@ -1,0 +1,46 @@
+<!--This file is part of Captiz.
+
+Captiz is free software: you can redistribute it and/or modify
+it under the terms of the Affero GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Captiz is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+Affero GNU General Public License for more details.
+
+You should have received a copy of the Affero GNU General Public License
+along with Captiz.  If not, see <http://www.gnu.org/licenses/>.-->
+
+{>"layouts/freelance" no_sidebar="1"/}
+
+{<title}Finished{/title}
+
+{<custom_css}
+{/custom_css}
+
+{<body}
+<div class="row">
+  <div class="col-md-12 text-center">
+    {@eq key=job.mission value="TRANSCRIPTION"}
+    <h2>Transcription finished !</h2>
+    {/eq}
+    {@eq key=job.mission value="TRANSLATION"}
+    <h2>Translation finished !</h2>
+    {/eq}
+    Project : <b>{project.getName}</b><br>
+    In : <b>{job.lang_target}</b><br><br>
+    Status : <b>
+    {#job.accepted}
+      Your work was accepted !
+    {:else}
+      Waiting for validation ...
+    {/job.accepted}
+    </b>
+  </div>
+</div>
+{/body}
+
+{<custom_js}
+{/custom_js}

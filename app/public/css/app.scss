@@ -1,0 +1,206 @@
+@mixin filter($filter-type,$filter-amount) {
+  -webkit-filter: $filter-type+unquote('(#{$filter-amount})');
+  -moz-filter: $filter-type+unquote('(#{$filter-amount})');
+  -ms-filter: $filter-type+unquote('(#{$filter-amount})');
+  -o-filter: $filter-type+unquote('(#{$filter-amount})');
+  filter: $filter-type+unquote('(#{$filter-amount})');
+}
+
+.blur{
+    @include filter(blur, 3px);
+}
+
+.navbar-nav > .user-menu > .dropdown-menu > li.user-header {
+    height: auto;
+}
+
+.currentRow {
+  background-color: #C9C9CB !important;
+}
+
+.content {
+    input[type="text"].form-control, input[type="number"].form-control{
+        border: none;
+        border-bottom: 1px solid #ccc;
+        padding: 0px 0px;
+
+        &:focus{
+            border-bottom: 1px solid #F39C12;
+        }
+    }
+    select.form-control{
+        border-radius: 0px;
+        border: none;
+        border-bottom: 1px solid #ccc;
+        padding: 0px 0px;
+
+        &:focus{
+            border-bottom: 1px solid #F39C12;
+        }
+    }
+    input[type="checkbox"].form-control{
+        width: 20px;
+        height: 20px;
+        border: 1px solid #ccc;
+        padding: 6px 0px;
+
+        &:focus, &:checked{
+            border: 1px solid #F39C12;
+        }
+    }
+    input[type="text"].form-control{
+        min-width: 200px;
+    }
+    textarea.form-control{
+        border: 1px solid #ccc;
+        padding: 6px 6px;
+        &:focus{
+            border: 1px solid #F39C12;
+        }
+    }
+}
+
+/* DASHBOARD */
+#dash-menu{
+  max-height: 286px;
+  overflow-y: scroll;
+  background-color: #222D32;
+}
+
+.project-card{
+  width: 100%;
+  min-height: 50px;
+  background: #FFFFFF;
+  border-radius: 5px;
+  padding: 10px;
+  color: #222D32;
+  text-decoration: none;
+}
+
+.trello-tab{
+  min-height: 130px;
+  max-height: 350px;
+  overflow-y: auto;
+  background-color: #222D32;
+}
+
+.trello-tab a:hover{
+  text-decoration: none !important;
+}
+
+
+#translator-legend-deadline{
+  width: 50px;
+  height: 20px;
+  background-color: #f39c12;
+  border-radius: 5px;
+  box-shadow: 0 1px 6px 0 rgba(0, 0, 0, 0.12), 0 1px 6px 0 rgba(0, 0, 0, 0.12);
+  display: inline-block;
+}
+
+#client-legend-deadline{
+  width: 50px;
+  height: 20px;
+  background-color: #3c8dbc;
+  border-radius: 5px;
+  box-shadow: 0 1px 6px 0 rgba(0, 0, 0, 0.12), 0 1px 6px 0 rgba(0, 0, 0, 0.12);
+  display: inline-block;
+}
+
+#dash-menu{
+  font-size: 17px;
+  ul > li {
+    color: #FFFFFF;
+  }
+  ul > li > span {
+      color: #E1A42E;
+  }
+}
+
+.movable {
+    .box-header {
+        cursor: move;
+    }
+}
+
+/*Full Calendar Overwrite*/
+.fc-unthemed .fc-today {
+    background-color: rgba(225, 164, 46, 0.5) !important;
+}
+
+/* Background gif on loading */
+.pace-running{
+  background: url(/images/world.gif);
+  background-size: auto;
+  background-repeat: repeat;
+}
+
+/* Button color */
+
+.btn-primary:active:hover{
+  background-color: #d07906;
+  border-color: #e68f11;
+}
+
+.btn-primary:active:focus{
+  background-color: #d07906;
+  border-color: #e68f11;
+}
+
+.btn-primary:focus{
+  background-color: #d07906;
+  border-color: #e68f11;
+}
+
+/* ADMIN LTE BOX HEADER */
+
+.box-header{
+  /*background-color: rgba(243, 156, 18, 0.5);*/
+  background-color: rgba(34, 45, 50, 0.1);
+}
+
+/* ADMIN LTE BLIST GROUP HEIGHT */
+.list-group {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* USER MENU */
+.user-body .col-xs-4:hover{
+  background-color: rgba(0,0,0,0.05);
+  text-decoration: underline;
+}
+
+/* DATEPICKER COLOR */
+.dtp-header{
+  background-color: #F39C12 !important;
+}
+
+
+
+.mixedtextarea {
+    background-origin: content-box;
+    background-color:white;
+    border:1px gray;
+
+    span {
+        float:left;
+
+        input {
+            padding:10px;
+            border: none;
+            &:focus{
+                outline:none;
+            }
+        }
+    }
+
+    textarea {
+        padding:10px;
+        float:right;
+        border:none;
+        &:focus{
+            outline:none;
+        }
+    }
+}
