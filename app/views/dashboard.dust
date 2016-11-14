@@ -1,0 +1,121 @@
+<!--This file is part of Captiz.
+
+Captiz is free software: you can redistribute it and/or modify
+it under the terms of the Affero GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Captiz is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+Affero GNU General Public License for more details.
+
+You should have received a copy of the Affero GNU General Public License
+along with Captiz.  If not, see <http://www.gnu.org/licenses/>.-->
+
+{>"layouts/master"/}
+
+{<dashboard_menu}active{/dashboard_menu}
+
+{<title}Dashboard{/title}
+
+{<custom_css}
+<!-- Display a loading view -->
+<link href="{base_url}css/pace.loadingbar.css" rel="stylesheet">
+
+<link href="{base_url}css/fullcalendar.min.css" rel="stylesheet">
+<link href="{base_url}css/bootstrap-table.min.css" rel="stylesheet">
+{/custom_css}
+
+{<sidebar}
+{/sidebar}
+
+{<body_header}
+<h1>
+  Dashboard
+</h1>
+<ol class="breadcrumb">
+  <li><a href="#"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+</ol>
+{/body_header}
+
+{<body}
+<div class="row">
+    <div class="grid">
+        <div class="grid-sizer col-lg-6"></div>
+
+        <div class="grid-item col-lg-6 movable">
+            <div class="box">
+                <div class="box-header with-border">
+                    <h3 class="box-title"></h3>
+
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                    </div>
+                </div><!-- /.box-header -->
+                <div class="box-body">
+                    <span style="font-size:1.2em;">{sentence.text}</span><br /><br />
+                    <iframe style="width:100%;height:315px;" src="{sentence.youtube}" frameborder="0" allowfullscreen></iframe>
+                </div>
+            </div>
+        </div><!-- /.grid-item -->
+
+        <div class="grid-item col-lg-6 movable">
+            <div class="box">
+                <div class="box-header with-border">
+                    <h3 class="box-title">My projects</h3>
+
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                    </div>
+                </div><!-- /.box-header -->
+                <div class="box-body">
+                    <div class="list-group">
+                      {#projects}
+                        <a class="list-group-item" href="{base_url}project/{data._id}/display">
+                            <i class="fa {data.getPicto}"></i> <span>{data.name}{! ({progress}%)!}</span>
+                        </a>
+                      {/projects}
+                  </div>
+                </div><!-- /.box-body -->
+            </div><!-- /.box -->
+        </div>
+    </div>
+</div>
+
+
+{/body}
+
+{<custom_js}
+<!-- jQuery UI 1.11.4 -->
+<script src="//code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
+
+<script src="//npmcdn.com/packery@2.0/dist/packery.pkgd.js"></script>
+<script src="//npmcdn.com/draggabilly@2.1/dist/draggabilly.pkgd.min.js"></script>
+
+<script src="{base_url}js/3rd/fullcalendar.min.js"></script>
+<script src="{base_url}js/3rd/bootstrap-table.min.js"></script>
+<script src="{base_url}js/3rd/bootstrap-table-locale-all.min.js"></script>
+<script>
+$(document).ready(function() {
+    setTimeout(function(){
+        $('.grid').packery({
+          itemSelector: '.grid-item',
+          columnWidth: '.grid-sizer',
+          percentPosition: true
+        });
+        $('.grid').find('.grid-item').each( function(i, gridItem ) {
+            var draggie = new Draggabilly( gridItem, {
+                handle: ".box-header, .nav-tabs"
+            });
+            $('.grid').packery( 'bindDraggabillyEvents', draggie );
+        });
+
+    }, 500);
+
+    $("[data-widget='collapse']").click(function(){
+        setTimeout(function(){$('.grid').packery()}, 500);
+    });
+});
+</script>
+{/custom_js}

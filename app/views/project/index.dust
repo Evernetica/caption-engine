@@ -1,0 +1,91 @@
+<!--This file is part of Captiz.
+
+Captiz is free software: you can redistribute it and/or modify
+it under the terms of the Affero GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Captiz is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+Affero GNU General Public License for more details.
+
+You should have received a copy of the Affero GNU General Public License
+along with Captiz.  If not, see <http://www.gnu.org/licenses/>.-->
+
+{>"layouts/projects"/}
+
+{<title}Dashboard{/title}
+
+{<custom_css}
+{/custom_css}
+
+{<body}
+
+<div class="row">
+  <div class="col-md-12">
+      <div class="box">
+            <div class="box-header with-border">
+                <h3 class="box-title">Create a new project</h3>
+            </div><!-- /.box-header -->
+            <div class="box-body">
+                <form class="form-horizontal" method="POST" action="{base_url}project/create">
+                    <div class="form-inline">
+                      <label for="inputType" class="control-label">I'm working on a</label>&nbsp;&nbsp;
+                      <select class="form-control" id="inputType" name="mediatype">
+                        <option value="MOVIE">Movie</option>
+                        <option value="TV">TV show</option>
+                        <option value="CORPORATE">Corporate film</option>
+                        <option value="ENTERTAINEMENT">Entertainement</option>
+                        <option value="EDUCATION">Educational video (MOOC)</option>
+                      </select>&nbsp;&nbsp;
+                      <label for="inputProjectname" class="control-label">called</label>&nbsp;&nbsp;
+                      <input required type="text" class="form-control" id="inputName" name="projectname" placeholder="Project name" />&nbsp;&nbsp;
+                      <span id="tvshowsettings">
+                          <label for="inputSeason" class="control-label">season</label>&nbsp;&nbsp;
+                          <input type="number" step="1" min="1" class="form-control" id="inputSeason" name="season" placeholder="" style="width:40px" />&nbsp;&nbsp;
+                      </span>
+                      .
+                    </div>
+                    <br />
+                    {!{#current_user._company.is_saas}
+                    <div class="form-inline">
+                      <label for="inputDeadlineclient" class="control-label">The client deadline is</label>&nbsp;&nbsp;
+                      <input type="text" class="form-control datepicker" id="inputDeadlineclient" name="deadlineclient" placeholder="YYYY-MM-DD" />&nbsp;&nbsp;
+                      <label for="inputDeadlinetranslators" class="control-label">and the freelancers deadline is</label>&nbsp;&nbsp;
+                      <input type="text" class="form-control datepicker" id="inputDeadlinetranslators" name="deadlinetranslators" placeholder="YYYY-MM-DD" />.
+                    </div>
+                    <br />
+                    {/current_user._company.is_saas}!}
+                    <div class="form-inline">
+                      <label for="inputDescription" class="control-label">I want freelancers to see instructions below :</label><br />
+                      <textarea class="form-control" rows="4" cols="40" id="inputDescription" name="description" style="width:100%"></textarea>
+                    </div><br />
+
+                      <input type="checkbox" id="useCharacter" name="useCharacter" /> <label for="useCharacter" class="control-label">I need the character name for my captions</label>
+                    <br /><br />
+
+                    <button type="submit" class="btn btn-primary">Create</button>
+              </form>
+          </div> <!-- /.box-body -->
+      </div> <!-- /.box -->
+  </div>
+
+</div>
+{/body}
+
+{<custom_js_2}
+<script>
+$(document).ready(function(){
+    $("#tvshowsettings").hide();
+    $("#inputType").change(function(){
+        if($(this).val() == "TV"){
+            $("#tvshowsettings").show();
+        }
+        else {
+            $("#tvshowsettings").hide();
+        }
+    });
+});
+</script>
+{/custom_js_2}

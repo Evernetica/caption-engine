@@ -1,0 +1,54 @@
+<!--This file is part of Captiz.
+
+Captiz is free software: you can redistribute it and/or modify
+it under the terms of the Affero GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Captiz is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+Affero GNU General Public License for more details.
+
+You should have received a copy of the Affero GNU General Public License
+along with Captiz.  If not, see <http://www.gnu.org/licenses/>.-->
+
+{>"layouts/master"/}
+
+{<title}User{/title}
+
+{<custom_css}
+{/custom_css}
+
+{<body}
+<div class="row">
+	<div class="col-md-12">
+		<div class="box">
+              <div class="box-header with-border">
+                  <h3 class="box-title">Your profile</h3>
+              </div><!-- /.box-header -->
+              <div class="box-body">
+				  {#user}
+  					<div class="row">
+  						<div class="col-md-6">
+  							<label>Lastname : </label><span> {lastname} </span><br>
+  							<label>Firstname : </label><span> {firstname} </span>
+  						</div>
+  						<div class="col-md-6">
+  							<label>Email : </label><span> {email} </span>
+  						</div>
+  					</div>
+  					<div class="row">
+  						<div class="col-md-12">
+  							<a href="{base_url}user/{_id}/settings/edit" class="btn btn-primary">Edit</a>
+  						</div>
+  					</div>
+  				{/user}
+			</div><!-- /.box-body -->
+		</div><!-- /.box -->
+	</div>
+</div>
+{/body}
+
+{<custom_js}
+{/custom_js}

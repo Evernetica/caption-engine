@@ -1,0 +1,224 @@
+<!--This file is part of Captiz.
+
+Captiz is free software: you can redistribute it and/or modify
+it under the terms of the Affero GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Captiz is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+Affero GNU General Public License for more details.
+
+You should have received a copy of the Affero GNU General Public License
+along with Captiz.  If not, see <http://www.gnu.org/licenses/>.-->
+
+{>"layouts/master"/}
+{<title}Company{/title}
+{<custom_css}
+<link href="{base_url}css/bootstrap-table.min.css" rel="stylesheet">
+{/custom_css}
+{<body}
+<div class="row">
+	<div class="col-md-12">
+		<div class="box">
+			<div class="box-header with-border">
+				<h3 class="box-title">Your company</h3>
+			</div><!-- /.box-header -->
+			<div class="box-body">
+				{#company}
+				<div class="row">
+					<div class="col-md-6">
+						<label>Name : </label><span> {name}</span>
+					</div>
+					<div class="col-md-6">
+						<label>Address : </label><span> {address.street}, {address.city} {address.zip}, {address.country}</span>
+					</div>
+				</div>
+				<br>
+				<div class="row">
+					<div class="col-md-4">
+						<label>Legal Responsable : </label><span> {legal_responsable.title} {legal_responsable.name}</span>
+					</div>
+					<div class="col-md-4">
+						<label>Phone : </label><span> {legal_responsable.phone}</span>
+					</div>
+					<div class="col-md-4">
+						<label>E-mail : </label><span> {legal_responsable.email}</span>
+					</div>
+				</div>
+				<br>
+				<div class="row">
+					<div class="col-md-4">
+						<label>Contact : </label><span> {contact.title} {contact.lastname} {contact.firstname}</span>
+					</div>
+					<div class="col-md-4">
+						<label>Phone : </label><span> {contact.phone}</span>
+					</div>
+					<div class="col-md-4">
+						<label>E-mail : </label><span> {contact.email}</span>
+					</div>
+				</div>
+				<br>
+				<div class="row">
+					<div class="col-md-6">
+						<label>VAT : </label><span> {vat_number}</span>
+					</div>
+					{#logo}
+					<div class="col-md-6">
+						<label>Your Logo : </label>
+						<br>
+						<img id="company_logo" src="https://s3-eu-west-1.amazonaws.com/captiz-logo/{logo}" height="200">
+					</div>
+					{/logo}
+				</div>
+				<br>
+				<div class="row">
+					<div class="col-md-12">
+						<a href="{base_url}company/edit" class="btn btn-primary">Edit</a>
+					</div>
+				</div>
+				{/company}
+			</div><!-- /.box-body -->
+		</div><!-- /.box -->
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-12">
+		<div class="box">
+			<div class="box-header with-border">
+				<h3 class="box-title">Managers</h3>
+			</div><!-- /.box-header -->
+			<div class="box-body">
+				<div class="table-responsive">
+					<table data-toggle="table"
+					id="manager_table"
+					data-locale="en-US"
+					data-toolbar="#toolbar"
+					data-striped="true"
+					data-search="true"
+					data-sort-name="id"
+					data-show-columns="true"
+					data-pagination="true"
+					data-page-size="5"
+					data-page-list="[5, 10, 25, 50, 100, ALL]"
+					data-response-handler="responseHandler">
+					<thead>
+						<tr>
+							<th data-field="firstname" data-sortable="true">Firstname</th>
+							<th data-field="lastname" data-sortable="true">Lastname</th>
+							<th data-field="email" data-sortable="true">Email</th>
+							<th data-field="action" data-sortable="true">Action</th>
+						</tr>
+					</thead>
+					<tbody>
+						{#managers}
+						<tr>
+							<td>{firstname}</td>
+							<td>{lastname}</td>
+							<td>{email}</td>
+							<td><a href="{base_url}user/{id}/settings/edit" class="btn btn-primary">Edit</a></td>
+						</tr>
+						{/managers}
+					</tbody>
+				</table>
+				<button type="button" class="btn btn-success" data-toggle="modal" data-target="#add_manager_modal">
+					Add a manager
+				</button>
+			</div>
+		</div><!-- /.box-body -->
+	</div><!-- /.box -->
+</div>
+</div>
+<!-- MODAL -->
+<div class="modal fade" id="add_manager_modal" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Add a manager</h4>
+				<br>
+			</div>
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-md-4">
+						<label>Firstname: </label>
+						<input type="text" class="form-control" id="firstname_add_manager" placeholder="Firstname"/>
+					</div>
+					<div class="col-md-4">
+						<label>Lastname: </label>
+						<input type="text" class="form-control" id="lastname_add_manager" placeholder="Lastname"/>
+					</div>
+					<div class="col-md-4">
+						<label>Email: </label>
+						<input type="text" class="form-control" id="email_add_manager" placeholder="Email"/>
+					</div>
+				</div>
+			</div>
+			<br>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				<button type="button" id="ajax_submit_add_manager" class="btn btn-success">Add manager</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- /.modal -->
+{/body}
+{<custom_js}
+<script src="{base_url}js/3rd/bootstrap-table.min.js"></script>
+<script src="{base_url}js/3rd/bootstrap-table-locale-all.min.js"></script>
+<script type="text/javascript">
+
+	var table_length;
+
+	$("#ajax_submit_add_manager").click(function(){
+		table_length = $('#manager_table tbody tr').length;
+		$(this).html("Loading...");
+		var ajaxdata = {
+			firstname: $("#firstname_add_manager").val(),
+			lastname: $("#lastname_add_manager").val(),
+			email: $("#email_add_manager").val()
+		};
+		$.ajax({
+			url : '{base_url}user/addManager',
+			type : 'POST',
+			data : JSON.stringify(ajaxdata),
+			dataType : 'json',
+			contentType: "application/json",
+			success: function(data){
+				if(data.success){
+					$.notification({
+						content: "Manager successfully added ! An email was send to him/her",
+						timeout: 5000
+					});
+					$('#manager_table').bootstrapTable('insertRow', {
+						index: table_length+1,
+						row: {
+							firstname: data.firstname,
+							lastname: data.lastname,
+							email: data.email,
+							action: "<a href='{base_url}user/"+ data.id +"/settings/edit' class='btn btn-primary'>Edit</a>"
+						}
+					});
+
+					$("#add_manager_modal").modal('hide');
+					$("#firstname_add_manager").val("");
+					$("#lastname_add_manager").val("");
+					$("#email_add_manager").val("");
+				}
+				else{
+					$.notification({
+						content: data.message,
+						timeout: 5000
+					});
+				}
+				$("#ajax_submit_add_manager").html("Add manager");
+			},
+			error: function(error){
+				console.log("ERROR"+error);
+			}
+		});
+	});
+</script>
+{/custom_js}

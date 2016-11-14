@@ -1,0 +1,14 @@
+/*$navbar-default-bg: #E1A42E;
+$navbar-default-link-color: #FFF;
+$navbar-default-link-active-color: $navbar-default-link-color;
+$navbar-border-radius: 0;
+
+$panel-default-heading-bg: #FC6A00;
+$panel-default-text: #FFF;*/
+
+@import "bootstrap-files/bootstrap";
+
+.form-horizontal .form-group {
+    margin-left: 0px;
+    margin-right: 0px;
+}

@@ -1,0 +1,100 @@
+<!--This file is part of Captiz.
+
+Captiz is free software: you can redistribute it and/or modify
+it under the terms of the Affero GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Captiz is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+Affero GNU General Public License for more details.
+
+You should have received a copy of the Affero GNU General Public License
+along with Captiz.  If not, see <http://www.gnu.org/licenses/>.-->
+
+{>"layouts/master"/}
+
+{<title}User{/title}
+
+{<custom_css}
+<!-- DropZone -->
+<link href="{base_url}css/dropzone.css" rel="stylesheet">
+{/custom_css}
+
+{<body}
+<div class="row">
+	<div class="col-md-12">
+		<div class="box">
+              <div class="box-header with-border">
+                  <h3 class="box-title">Edit profile</h3>
+              </div><!-- /.box-header -->
+              <div class="box-body">
+				  {#user}
+  				<form class="form-horizontal" id="form_edit_user" method="POST" action="{base_url}user/{_id}/settings/edit">
+  					<div class="row">
+  						<div class="col-md-6">
+  							<label>Name : </label>
+  							<input type="text" class="form-control" id="lastname_edit_user" name="lastname" placeholder="Lastname" value="{lastname}"/>
+  							<input type="text" class="form-control" id="firstname_edit_user" name="firstname" placeholder="Firstname" value="{firstname}"/>
+  						</div>
+  						<div class="col-md-6">
+  							<label>Email : </label>
+  							<input type="text" class="form-control" id="email_edit_user" name="email" placeholder="Email" value="{email}"/>
+  						</div>
+  					</div>
+  					<br><br>
+  					<div class="row">
+  						<div class="col-md-6">
+  							{#is_password_temporary}
+  								<span style="color:#F44336"><b>Hello ! It's your first connection, please change your password.</b></span><br>
+  							{/is_password_temporary}
+  							<label>Change Password : </label>
+  							<input type="password" class="form-control" id="newPassword1_edit_user" name="newPassword1" placeholder="Type your new password"/><br>
+  							<input type="password" class="form-control" id="newPassword2_edit_user" name="newPassword2" placeholder="Type your new password again"/>
+  						</div>
+  					</div>
+  					<div class="row">
+  						<div class="col-md-12">
+  							<br /><input type="submit" class="btn btn-success" value="Save"></input>
+  						</div>
+  					</div>
+  				</form>
+  				{/user}
+			</div><!-- /.box-body -->
+		</div><!-- /.box -->
+	</div>
+</div>
+{/body}
+
+{<custom_js}
+<script type="text/javascript">
+
+	$("#form_edit_user").submit(function(event){
+		var check = true;
+		if($("#lastname_edit_user").val() == "" || $("#firstname_edit_user").val() == "" || $("#email_edit_user").val() == ""){
+			$.notification({
+				content: "Please complete firstname, lastname and email field",
+				timeout: 5000
+			});
+			check = false;
+		}
+		else{
+			if($("#newPassword1_edit_user").val() != "" && $("#newPassword2_edit_user").val() != ""){
+				if($("#newPassword1_edit_user").val() != $("#newPassword2_edit_user").val()){
+					$.notification({
+						content: "New passwords doesn't corresponding !",
+						timeout: 5000
+					});
+					check = false;
+				}
+			}
+		}
+		if(!check){
+			event.preventDefault();
+		}
+	});
+
+</script>
+
+{/custom_js}

@@ -1,0 +1,91 @@
+<!--This file is part of Captiz.
+
+Captiz is free software: you can redistribute it and/or modify
+it under the terms of the Affero GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Captiz is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+Affero GNU General Public License for more details.
+
+You should have received a copy of the Affero GNU General Public License
+along with Captiz.  If not, see <http://www.gnu.org/licenses/>.-->
+
+{>"layouts/master"/}
+
+{<title}Archive{/title}
+
+{<custom_css}
+<link href="{base_url}css/bootstrap-table.min.css" rel="stylesheet">
+{/custom_css}
+
+{<sidebar}
+<ul class="sidebar-menu">
+    <li class="header">My archive</li>
+</ul>
+{/sidebar}
+
+{<body}
+	<div class="row">
+		<div class="col-md-12">
+			<div class="box">
+	              <div class="box-header with-border">
+	                  <h3 class="box-title">Your archive</h3>
+	              </div><!-- /.box-header -->
+	              <div class="box-body">
+					  <h4><b>Archive List :</b></h4>
+					  <table data-toggle="table"
+					  	id="table_users"
+					  	data-locale="en-US"
+					  	data-toolbar="#toolbar"
+					  	data-striped="true"
+					  	data-search="true"
+					  	data-sort-name="dateArchivedRead"
+					  	data-sort-order="desc"
+					  	data-show-columns="true"
+					  	data-pagination="true"
+					  	data-page-list="[10, 25, 50, 100, ALL]"
+					  	data-response-handler="responseHandler">
+					  	<thead>
+					  		<tr>
+					  			<th data-field="id" data-sortable="true" data-visible="false">ID</th>
+					  			<th data-field="dateArchivedRead" data-sortable="true">Date Archived</th>
+					  			<th data-field="name" data-sortable="true">Name</th>
+					  			<th data-field="description" data-sortable="true">Description</th>
+					  			<th data-field="type" data-sortable="true">Type</th>
+					  			<th data-events="operateEvents"
+					  				data-formatter="operateFormatter"
+					  			data-align="center">Action</th>
+					  		</tr>
+					  	</thead>
+					  	<tbody>
+					  		{#projects}
+					  		<tr>
+					  			<td>{id}</td>
+					  			<td>{dateArchivedRead}</td>
+					  			<td>{name}</td>
+					  			<td>{description}</td>
+					  			<td>{type}</td>
+					  		</tr>
+					  		{/projects}
+					  	</tbody>
+					  </table>
+				</div><!-- /.box-body -->
+			</div><!-- /.box -->
+		</div>
+	</div>
+	{/body}
+	{<custom_js}
+	<script src="{base_url}js/3rd/bootstrap-table.min.js"></script>
+	<script src="{base_url}js/3rd/bootstrap-table-locale-all.min.js"></script>
+	<script type="text/javascript">
+		function operateFormatter(value, row, index) {
+			return [
+			'<a class="show" href="{base_url}project/'+row["id"]+'/display" title="Show">',
+			'<i class="glyphicon glyphicon-eye-open"></i> <b>Show</b>',
+			'</a>'].join('');
+		}
+	</script>
+	{/custom_js}

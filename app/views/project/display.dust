@@ -1,0 +1,668 @@
+<!--This file is part of Captiz.
+
+Captiz is free software: you can redistribute it and/or modify
+it under the terms of the Affero GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Captiz is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+Affero GNU General Public License for more details.
+
+You should have received a copy of the Affero GNU General Public License
+along with Captiz.  If not, see <http://www.gnu.org/licenses/>.-->
+
+{#project.is_archived}
+{>"layouts/master"/}
+{:else}
+{>"layouts/projects"/}
+{/project.is_archived}
+
+{<title}Project page{/title}
+
+{<custom_css}
+<link href="//vjs.zencdn.net/5.0/video-js.min.css" rel="stylesheet">
+<link href="{base_url}css/bootstrap-table.min.css" rel="stylesheet">
+{/custom_css}
+
+{#project.is_archived}
+{<sidebar}
+<ul class="sidebar-menu">
+    <li class="header">My archive</li>
+</ul>
+{/sidebar}
+{/project.is_archived}
+
+
+{<body_header}
+<h1>
+    {project.getName}
+</h1>
+<ol class="breadcrumb">
+    <li><a href="{base_url}project"><i class="fa fa-tasks"></i> Projects</a></li>
+    <li>Display</a>
+</ol>
+{/body_header}
+
+{<body}
+<div class="row">
+    <div class="col-md-5">
+        <div class="box">
+              <div class="box-header with-border">
+                  <h3 class="box-title">{#project.video.url}Video{:else}Set video{/project.video.url}</h3>
+              </div><!-- /.box-header -->
+              <div class="box-body">
+                  {#project.is_archived}
+                  <b>This project is archived, the video is not available anymore !</b>
+                  {:else}
+                      {#project.video.url}
+                        <video class="video-js vjs-16-9" id="videojs" controls>
+                          <p class="vjs-no-js">
+                            To view this video please enable JavaScript, and consider upgrading to a web browser that
+                            <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
+                          </p>
+                        </video>
+                      {:else}
+                        <div id="ytview">
+                            <h4>From a public link</h4>
+                            <input type="text" name="video_url" id="editVideoUrl" placeholder="Public video url" /> <input type="button" class="btn btn-warning" value="Set video" id="btnVideoUrl" /><br />
+                        </div>
+                      {/project.video.url}
+                  {/project.is_archived}
+              </div><!-- /.box-body -->
+          </div><!-- /.box -->
+    </div>
+
+    <div class="col-md-7">
+        <div class="box">
+              <div class="box-header with-border">
+                  <h3 class="box-title">Project</h3>
+              </div><!-- /.box-header -->
+              <div class="box-body">
+                  <div class="list-group">
+                    <div class="list-group-item">
+                        <div class="pull-left">
+                            <i class="fa fa-user" style="font-size:3em;margin-right:10px;"></i>
+                        </div>
+                        <div class="row-content">
+                            <h4 class="list-group-item-heading">Manager</h4>
+                            <p class="list-group-item-text">{project._manager.firstname} {project._manager.lastname}</p>
+                        </div>
+                    </div>
+                    <div class="list-group-separator"></div>
+
+                    {^project.is_archived}
+                    {#project.video.url}
+                    {@ne key=project.status value="ENCODING"}
+                    <div class="list-group-item">
+                      <div class="pull-left">
+                          <i class="fa fa-list-ul" style="font-size:3em;margin-right:10px;"></i>
+                      </div>
+                      <div class="row-content">
+                        <h4 class="list-group-item-heading">Timecodes</h4>
+                        <p class="list-group-item-text">
+                          {@eq key=project.status value="ENCODING_FINISHED"}
+                          {#project.video.url}
+                          No timecode available yet.<br><br>
+                          You should &nbsp;&nbsp;&nbsp;
+                          <a href="{base_url}project/{project._id}/timecodes" class="btn btn-primary">Add a timecode file</a>&nbsp;&nbsp;&nbsp; or &nbsp;&nbsp;&nbsp;
+                          <a href="#invites" class="btn btn-primary">Invite a transcriptor</a>
+                          {:else}
+                          Set your video before uploading timecodes.
+                          {/project.video.url}
+                          {/eq}
+                          {@eq key=project.status value="TRANSCRIPTION"}
+                          Your project is currently <b>timecoded/transcripted</b> ! <br>
+                          Please wait for his job to be <b>done &amp; validated</b> before inviting translators.
+                          {/eq}
+                          {@eq key=project.status value="TRANSCRIPTION_FINISHED"}
+                          Your project is ready for the translation !<br>
+                          You can now invite translators below !
+                          {/eq}
+                        </p>
+                      </div>
+                    </div>
+                    <div class="list-group-separator"></div>
+                    {/ne}
+                    {/project.video.url}
+                    {/project.is_archived}
+
+                    <br>
+                    {#project.is_archived}
+                    {!}{#project.toDelete}
+                    <a class="btn btn-success" href="{base_url}project/{project._id}/cancel">Cancel archiving</a>
+                    {/project.toDelete}!}
+                    <button type="button" class="btn btn-danger pull-right" data-toggle="modal" data-target="#confirmDelete">
+                    Delete definitely
+                    </button>
+                    {:else}
+                    <a href="{base_url}project/{project._id}/edit" class="btn btn-primary">Edit</a> &nbsp;
+                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#confirmDone">
+                    Archive
+                    </button>
+                    {/project.is_archived}
+                  </div>
+              </div>
+          </div>
+      </div>
+
+  </div>
+
+  {#project.video.url}
+      <div class="row" id="invites">
+          <div class="col-md-12">
+              <div class="box">
+                  <div class="box-header with-border">
+                      <h3 class="box-title">{#current_user._company.is_saas}Invitations{:else}Freelancers{/current_user._company.is_saas}</h3>
+                  </div><!-- /.box-header -->
+                  <div class="box-body">
+                      {^project.is_archived}
+                        {@ne key=project.status value="TRANSCRIPTION"}
+                        <div class="form-inline">
+                          <label for="inputEmail" class="control-label">Invite</label>&nbsp;&nbsp;
+                          <input type="text" class="form-control" id="inputEmail" name="email" placeholder="email address" />&nbsp;&nbsp;
+                          <label for="inputMission" class="control-label">to</label>&nbsp;&nbsp;
+                          <select class="form-control" name="mission" id="inputMission">
+                            {@eq key=project.status value="ENCODING_FINISHED"}
+                            <option value="" selected>Select a mission</option>
+                            <option value="TRANSCRIPTION">Transcribe</option>
+                            {:else}
+                            {@eq key=project.status value="TRANSCRIPTION_FINISHED"}
+                            <option value=""></option>
+                            <option value="TRANSLATION">Translate</option>
+                            {/eq}
+                            {/eq}
+                          </select>
+                          &nbsp;&nbsp;
+                          <span id="config_translate" class="config">
+                            <label for="inputLang" class="control-label">in</label>&nbsp;&nbsp;
+                            <select class="form-control" name="lang" id="inputLang">
+                              <option value="" selected>Select a language</option>
+                              <option value="FR">French</option>
+                              <option value="EN">English</option>
+                             <option value="IT">Italian</option>
+                              <option value="DE">German</option>
+                              <option value="ES">Spanish</option>
+                              <option value="CHI">Chinese</option>
+                              <option value="KO">Korean</option>
+                              <option value="KU">Kurdish</option>
+                              <option value="RU">Russian</option>
+                              <option value="AR">Arabic</option>
+                            </select>
+                          </span>
+                          &nbsp;&nbsp;
+
+                          <label for="inputDeadline" class="control-label">with deadline </label>&nbsp;&nbsp;
+                          <input type="text" class="form-control datepicker" id="inputDeadline" name="inputDeadline" placeholder="YYYY-MM-DD" />&nbsp;&nbsp;
+
+                          &nbsp;&nbsp;
+
+                          <a id="btnInvite" class="btn btn-primary">Invite</a>
+                        </div>
+                        {:else}
+                        Your project is currently <b>timecoded/transcripted</b> ! <br>
+                        Please wait for the job to be <b>done & validated</b> before inviting translators.
+                        {/ne}
+
+                        {/project.is_archived}
+
+                        <table data-toggle="table"
+                        id="table_translators"
+                        data-locale="en-US"
+                        data-toolbar="#toolbar"
+                        data-striped="true"
+                        data-search="true"
+                        data-sort-name="id"
+                        data-show-columns="true"
+                        data-pagination="true"
+                        data-page-size="5"
+                        data-page-list="[5, 10, 25, 50, 100, ALL]"
+                        data-response-handler="responseHandler">
+                        <thead>
+                          <tr>
+                            <th data-field="status" data-sortable="true">Status</th>
+                            <th data-field="email" data-sortable="true">E-mail</th>
+                            <th data-field="mission" data-sortable="true">Mission</th>
+                            <th data-field="language" data-sortable="true">Language</th>
+                            <th data-field="deadline" data-sortable="true">Deadline</th>
+                            {!<th data-field="progress" data-sortable="true">Progress</th>!}
+                            <th data-field="download" data-sortable="false">Download</th>
+                            {^project.is_archived}
+                            {!<th data-field="interface" data-sortable="false">Interface</th>!}
+                            {!<th data-field="review" data-sortable="false">Review</th>!}
+                            <th data-field="action" data-sortable="false">Action</th>
+                            {/project.is_archived}
+                          </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                      </table>
+                  </div><!-- /.box-body -->
+              </div><!-- /.box -->
+      </div>
+    </div>
+{/project.video.url}
+
+{#project.use_character}
+<div class="row" id="stats">
+    <div class="col-md-12">
+        <div class="box">
+            <div class="box-header with-border">
+                <h3 class="box-title">{characters.length} characters stats</h3>
+            </div><!-- /.box-header -->
+            <div class="box-body">
+                <table data-toggle="table"
+                id="table_stats"
+                data-locale="en-US"
+                data-toolbar="#toolbar"
+                data-striped="true"
+                data-search="true"
+                data-sort-name="name"
+                data-show-columns="true"
+                data-pagination="true"
+                data-page-size="5"
+                data-page-list="[5, 10, 25, 50, 100, ALL]"
+                data-response-handler="responseHandler">
+                <thead>
+                  <tr>
+                    <th data-field="name" data-sortable="true">Name</th>
+                    <th data-field="lines" data-sortable="true"># lines</th>
+                    <th data-field="length" data-sortable="true">Length</th>
+                  </tr>
+                </thead>
+                <tbody>
+                    {#characters}
+                        <tr>
+                          <td>{name}</td>
+                          <td>{nb_lines} lines</td>
+                          <td>{length} minutes</td>
+                        </tr>
+                    {/characters}
+                </tbody>
+              </table>
+            </div>
+        </div>
+    </div>
+</div>
+{/project.use_character}
+
+{^project.is_archived}
+<div class="modal fade" id="declineTranslation" tabindex="-1" role="dialog" aria-labelledby="declineTranslationLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title text-center" id="declineTranslationLabel">Decline</h4>
+      </div>
+      <div class="modal-body text-center">
+        <div class="row">
+          <div class="col-md-12">
+              <br><br>
+              <b>What's wrong with the translation ?</b><br>
+              <textarea style="width: 100%;" rows="6" id="declineReason"></textarea><br>
+              <input type="hidden" id="translator_code_modal"/>
+              <button class="btn btn-lg btn-primary" id="declineTranslationSubmit">Decline</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="watch-modal" tabindex="-1" role="dialog" aria-labelledby="declineTranslationLabel">
+  <div class="modal-dialog" role="document" style="background-color:white;">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title text-center" id="declineTranslationLabel">Watch result</h4>
+      </div>
+      <div class="modal-content">
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+  </div>
+</div>
+
+<div class="modal fade" id="confirmDone" tabindex="-1" role="dialog" aria-labelledby="confirmDoneLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title text-center" id="confirmDoneLabel">Are you sure ?</h4>
+      </div>
+      <div class="modal-body text-center">
+        <div class="row">
+          <div class="col-md-12">
+            <form action="{base_url}project/archive" method="post">
+              <input type="hidden" name="id" value="{project._id}" />
+              <input type="submit" class="btn btn-lg btn-primary" value="Archive" /><br>(Only the video will be removed, you'll still have access to the subtitles files until you remove the project)
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+{:else}
+<div class="modal fade" id="confirmDelete" tabindex="-1" role="dialog" aria-labelledby="confirmDeleteLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title text-center" id="confirmDoneLabel">Delete a project</h4>
+      </div>
+      <div class="modal-body text-center">
+        <div class="row">
+          <div class="col-md-12">
+            <form action="{base_url}project/archive/delete" method="post">
+              <input type="hidden" name="id" value="{project._id}" />
+              <input type="submit" class="btn btn-lg btn-danger" value="Delete" /><br>(WARNING : It will destroy completely the project !)
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+{/project.is_archived}
+
+{/body}
+
+{<custom_js_2}
+<script src="//vjs.zencdn.net/5.0/video.min.js"></script>
+<script src="{base_url}js/videojs.plugin.youtube.min.js"></script>
+<script src="{base_url}js/3rd/bootstrap-table.min.js"></script>
+<script src="{base_url}js/3rd/bootstrap-table-locale-all.min.js"></script>
+
+<script>
+  {#checkDuration}
+    var vid = document.getElementById("videojs");
+    var t = window.setInterval(function(){
+        if (vid!= null && vid.readyState > 0) {
+            var duration = {
+              duration: Math.round(vid.duration)
+            };
+            $.ajax({
+              url : '{base_url}video/{project._id}/save_duration',
+              type : 'POST',
+              data : JSON.stringify(duration),
+              dataType : 'json',
+              contentType: "application/json",
+              success: function (data) {
+                console.log("Video duration saved in BDD !");
+              },
+              error: function (error) {
+              }
+            });
+
+            clearInterval(t);
+        }
+    }, 500);
+  {/checkDuration}
+
+  function setCloseWindowMessage(){
+      window.onbeforeunload = function(e){
+        var e = e || window.event;
+
+        if(e){
+          e.returnValue = "Are you sure ? Your upload will be broken !";
+        }
+
+        return "Are you sure ? Your upload will be broken !";
+      };
+  }
+
+  function loadTranslators(){
+    $("#table_translators > tbody").html("");
+    $.ajax({
+      url : '{base_url}project/{project._id}/translators',
+      type : 'GET',
+      dataType : 'json',
+      contentType: "application/json",
+      success: function (data) {
+
+        var langs = new Object();
+        $('#table_translators').bootstrapTable('removeAll');
+
+        for(var i=0;i<data.translators.length;i++){
+
+          if(data.translators[i].lang!=null){
+            langs[data.translators[i].lang.short] = data.translators[i].lang.title;
+          }
+
+          var mission_interface = "";
+          if(data.translators[i].mission=='TRANSCRIPTION'){
+            mission_interface = "transcriptor";
+          }
+          else if(data.translators[i].mission=='TRANSLATION'){
+            mission_interface = "translator";
+          }
+
+          $('#table_translators').bootstrapTable('insertRow', {
+              index: i+1,
+              row: {
+                status: (data.translators[i].done?'<b>('+(data.translators[i].accepted?'done':'marked as done')+')</b> ':'Working on it'),
+                email: data.translators[i].email,
+                mission: data.translators[i].mission,
+                language: data.translators[i].lang,
+                deadline: data.translators[i].deadline+" ("+data.translators[i].deadline_diff+")",
+                download: "<a href='{base_url}project/{project._id}/translate/"+data.translators[i].code+"/download/csv'>CSV</a> | <a href='{base_url}project/{project._id}/translate/"+data.translators[i].code+"/download/srt'>SRT</a> | <a href='{base_url}project/{project._id}/translate/"+data.translators[i].code+"/download/vtt'>WebVTT</a> | <a href='{base_url}project/{project._id}/translate/"+data.translators[i].code+"/download/detx'>DetX</a> | <a href='{base_url}project/{project._id}/watch/"+data.translators[i].code+"' data-toggle='modal' data-target='#watch-modal'>Watch</a> | <a href='{base_url}project/freelance/"+data.translators[i].code+"/proofread'>Proof-read</a>",
+                action: (data.translators[i].done&&!data.translators[i].accepted?"<a href='{base_url}project/{project._id}/translate/"+data.translators[i].code+"/accept'>Accept</a> | <a href='#' class='openDeclineModal' data-toggle='modal' data-target='#declineTranslation' data-id=\""+data.translators[i].code+"\">Decline</a>":(!data.translators[i].done?"In progress":"<b>Validated</b>"))+" | <a href='#' onclick='changePassword(\""+data.translators[i].code+"\")'>Password</a>"
+              }
+            });
+        }
+
+        var str="";
+        str+='<option value="">Select language</option>';
+        for(var index in langs){
+          if (!langs.hasOwnProperty(index)) {
+            continue;
+          }
+          str+='<option value="'+index+'">'+langs[index]+'</option>';
+        }
+        $("#inputValidateLang").html(str);
+      },
+      error: function (error) {
+      }
+    });
+}
+
+function changePassword(code){
+    var new_password = prompt("New password", "");
+
+    var ajaxdata = {
+        password: new_password
+    };
+    $.ajax({
+      url : '{base_url}project/freelance/'+code+'/change_password',
+      type : 'POST',
+      data : JSON.stringify(ajaxdata),
+      dataType : 'json',
+      contentType: "application/json",
+      success: function (data) {
+          alert("Success : password changed !");
+      },
+      error: function (error) {
+          console.error(error);
+      }
+    });
+}
+
+$(document).ready(function(){
+  loadTranslators();
+
+  $('body').on('hidden.bs.modal', '.modal', function () {
+     $(this).removeData('bs.modal');
+     $("#watch-modal .modal-content").html("");
+  });
+
+  $("#btnVideoUrl").click(function(){
+      var url = $("#editVideoUrl").val();
+      if(url!="") {
+          setCloseWindowMessage();
+          var prevVal = $("#btnVideoUrl").val();
+          $("#btnVideoUrl").val("Loading...");
+          $("#btnVideoUrl").prop('disabled', true);
+
+          var ajaxdata = {
+            url: url
+          };
+          $.ajax({
+            url : '{base_url}video/{project._id}/set_video',
+            type : 'POST',
+            data : JSON.stringify(ajaxdata),
+            dataType : 'json',
+            contentType: "application/json",
+            success: function (data) {
+                window.onbeforeunload = null;
+                location.reload();
+            },
+            error: function (error) {
+                $("#btnVideoUrl").val(prevVal);
+                $("#btnVideoUrl").prop('disabled', false);
+                window.onbeforeunload = null;
+            }
+          });
+      }
+  });
+
+  $(".config").hide();
+  $("#inputMission").change(function(){
+    $(".config").hide();
+    if($(this).val() == "TRANSLATION" || $(this).val() == "TRANSCRIPTION"){
+      $("#inputLang").prop('selectedIndex',0);
+      $("#config_translate").show();
+    }
+    else if($(this).val() == "REVIEW"){
+      $("#inputValidateType").prop('selectedIndex',0);
+      $("#config_freelance").show();
+    }
+  });
+  $("#inputValidateType").change(function(){
+    if($(this).val() == "TRANSCRIPTION"){
+      $("#config_validate_translate").hide();
+    }
+    else if($(this).val() == "TRANSLATION"){
+      $("#inputValidateLang").prop('selectedIndex',0);
+      $("#config_validate_translate").show();
+    }
+  });
+
+  {#project.video.url}
+  {@ne key=project.status value="NONE"}
+
+  var sources = [];
+  var url = "{project.video.url}";
+  if(url.indexOf("https://www.youtube.com")==0) {
+      sources.push({ type: "video/youtube", src: url });
+  }
+  else {
+      sources.push({src: url});
+  }
+  var player = videojs('videojs', {
+      controls: true,
+      autoplay: false,
+      preload: "auto",
+      techOrder: ["html5", "youtube"],
+      playbackRates: [0.2,0.5,0.8,1,1.5,2],
+      controlBar:{
+      },
+      sources: sources
+  });
+  {/ne}
+  {/project.video.url}
+
+  $("#btnInvite").click(function(){
+    var mission = $("select[name=mission]").val();
+    var lang = $("select[name=lang]").val();
+    var email = $("#inputEmail").val();
+    var freelance_to_review = $("select[name=freelance]").val();
+    var deadline = $("#inputDeadline").val();
+    if(email!="" && mission!="" && (
+      (mission=="TRANSLATION" && lang!="") ||
+      (mission=="TRANSCRIPTION" && lang!="") ||
+      (mission=="REVIEW" && freelance_to_review!="" && lang==""))){
+
+      $(this).html("Loading...");
+
+      var ajaxdata = {
+        email: email,
+        mission: mission,
+        translate_lang: lang,
+        freelance_to_review: freelance_to_review,
+        deadline: deadline
+      };
+
+      $.ajax({
+        url : '{base_url}project/{project._id}/invite',
+        type : 'POST',
+        data : JSON.stringify(ajaxdata),
+        dataType : 'json',
+        contentType: "application/json",
+        success: function (data) {
+          $("#inputEmail").val("");
+          $("select[name=lang]").val("");
+          $("#inputDeadline").val("");
+
+          $("#btnInvite").html("Invite");
+          loadTranslators();
+        },
+        error: function (error) {
+          $("#btnInvite").html("Invite");
+          $("#inputDeadline").val("");
+        }
+      });
+    }
+  });
+});
+
+
+$(document).on("click", ".openDeclineModal", function () {
+     var translator_code = $(this).data('id');
+     $("#translator_code_modal").val(translator_code);
+});
+
+$("#declineTranslationSubmit").click(function(){
+  var translator_code = $("#translator_code_modal").val();
+
+  var ajaxdata = {
+    reason: $("#declineReason").val()
+  };
+
+  $.ajax({
+    url : '{base_url}project/{project._id}/translate/'+translator_code+'/decline',
+    type : 'POST',
+    data : JSON.stringify(ajaxdata),
+    dataType : 'json',
+    contentType: "application/json",
+    success: function (data) {
+      loadTranslators();
+      $('#declineTranslation').modal('toggle');
+      $.notification({
+        content: "Your choice has been validated.",
+        timeout: 10000
+      });
+    },
+    error: function (error) {
+      $('#declineTranslation').modal('toggle');
+      $.notification({
+        content: "Sorry, something went wrong, please try again later.",
+        timeout: 10000
+      });
+    }
+  });
+});
+</script>
+{/custom_js_2}

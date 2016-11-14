@@ -1,0 +1,105 @@
+<!--This file is part of Captiz.
+
+Captiz is free software: you can redistribute it and/or modify
+it under the terms of the Affero GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Captiz is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+Affero GNU General Public License for more details.
+
+You should have received a copy of the Affero GNU General Public License
+along with Captiz.  If not, see <http://www.gnu.org/licenses/>.-->
+
+{>"layouts/projects"/}
+
+{<title}Edit Project{/title}
+
+{<custom_css}
+<link href="{base_url}css/select2.min.css" rel="stylesheet">
+<style>
+.select2{
+	min-width: 150px !important;
+}
+</style>
+{/custom_css}
+
+{<body}
+	<div class="row">
+		<div class="col-md-12">
+			<div class="box">
+	              <div class="box-header with-border">
+	                  <h3 class="box-title">Edit your project</h3>
+	              </div><!-- /.box-header -->
+	              <div class="box-body">
+					  	{#project}
+	  					<form class="form-horizontal" method="POST" action="{base_url}project/{id}/edit">
+	  						<div class="row">
+	  							<div class="col-md-6">
+	  								<label>Project Name : </label>
+	  								<input type="text" class="form-control" name="name" placeholder="Project name" value="{name}"/>
+	  							</div>
+	  							<div class="col-md-6">
+	  								<label>Project Description : </label>
+	  								<textarea class="form-control" rows="5" name="description" placeholder="Description">{description}</textarea>
+	  							</div>
+	  						</div>
+	  						<br>
+							{#current_user._company.is_saas}
+	  						<div class="row">
+	  							<div class="col-md-6">
+	  								<label>Deadline Client : </label>
+	  								<input type="text" class="form-control datepicker" id="inputDeadlineclient" name="deadlineclient" value="{dead1}" placeholder="YYYY-MM-DD" />
+	  							</div>
+	  							<div class="col-md-6">
+	  								<label>Deadline Translator : </label>
+	  								<input type="text" class="form-control datepicker" id="inputDeadlinetranslators" name="deadlinetranslators" value="{dead2}" placeholder="YYYY-MM-DD" />
+	  							</div>
+	  						</div>
+	  						<br>
+							{/current_user._company.is_saas}
+	  						<br>
+	  						<div class="row">
+	  							<div class="col-md-6">
+	  								<label>Project Manager : </label><br>
+	  								<select name="manager" class="combobox">
+	  								  {#managers}
+	  								  {@eq key="{_id}" value="{project._manager}"}
+	  								  <option value="{id}" selected>{firstname} {lastname}</option>
+	  								  {:else}
+	  								  <option value="{id}">{firstname} {lastname}</option>
+	  								  {/eq}
+	  								  {/managers}
+	  								</select>
+	  							</div>
+
+								<div class="col-md-6">
+				                      <input type="checkbox" id="useCharacter" name="useCharacter" {?project.use_character}checked{/project.use_character}/> <label for="useCharacter" class="control-label">I need the character name for my captions</label>
+								</div>
+	  						</div>
+	  						<br>
+	  						<br>
+	  						<div class="row">
+	  							<div class="col-md-12">
+	  								<input type="submit" class="btn btn-success" value="Save project"></input>
+	  							</div>
+	  						</div>
+	  					</form>
+		  				{/project}
+				</div> <!-- /.box-body -->
+			</div> <!-- /.box -->
+		</div>
+	</div>
+</div>
+{/body}
+
+{<custom_js_2}
+<script src="{base_url}js/3rd/select2.full.min.js"></script>
+<script type="text/javascript">
+	$(document).ready(function() {
+	  $(".combobox").select2();
+	});
+</script>
+{/custom_js_2}
