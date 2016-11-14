@@ -1,0 +1,307 @@
+<!--This file is part of Captiz.
+
+Captiz is free software: you can redistribute it and/or modify
+it under the terms of the Affero GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Captiz is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+Affero GNU General Public License for more details.
+
+You should have received a copy of the Affero GNU General Public License
+along with Captiz.  If not, see <http://www.gnu.org/licenses/>.-->
+
+{>"layouts/freelance" no_sidebar="1"/}
+
+{<spreadsheet_menu}active{/spreadsheet_menu}
+
+{<title}Sheet{/title}
+
+{<custom_css}
+<link href="//vjs.zencdn.net/5.0/video-js.min.css" rel="stylesheet">
+<link rel="stylesheet" media="screen" href="{base_url}css/handsontable.full.min.css">
+<link href="{base_url}css/projector.min.css" rel="stylesheet">
+{/custom_css}
+
+{<body}
+<div style="width:320px;height:240px;position:fixed;left:25px;bottom:0px;margin:0;padding:0;z-index: 150;-webkit-transform: translateZ(150); transform: translateZ(150);">
+<video class="video-js vjs-4-3" id="video"  controls>
+    <p class="vjs-no-js">
+      To view this video please enable JavaScript, and consider upgrading to a web browser that
+      <a href="//videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
+    </p>
+</video>
+</div>
+
+<div class="row">
+  <div class="col-md-12">
+      <div class="box">
+            <div class="box-header with-border">
+                <h3 class="box-title">Subtitles</h3>
+            </div><!-- /.box-header -->
+            <div class="box-body" id="box_body">
+                <div id="spreadsheet" style="margin-bottom:240px;"></div>
+            </div><!-- /.box-body -->
+    </div><!-- /.box -->
+  </div>
+</div>
+{/body}
+
+{<custom_js}
+<script src="//vjs.zencdn.net/5.0/video.min.js"></script>
+<script src="{base_url}js/videojs.plugin.youtube.min.js"></script>
+
+<script src="{base_url}js/3rd/handsontable.full.min.js"></script>
+<script src="{base_url}js/3rd/moment-duration-format.js"></script>
+
+<script>
+/* original by: Kevin van Zonneveld (http://kevin.vanzonneveld.net) */
+function strip_tags(input, allowed) {
+    var tags = /<\/?([a-z][a-z0-9]*)\b[^>]*>/gi,
+      commentsAndPhpTags = /<!--[\s\S]*?-->|<\?(?:php)?[\s\S]*?\?>/gi;
+
+    allowed = (((allowed || "") + "").toLowerCase().match(/<[a-z][a-z0-9]*>/g) || []).join('');
+
+    return input.replace(commentsAndPhpTags, '').replace(tags, function ($0, $1) {
+      return allowed.indexOf('<' + $1.toLowerCase() + '>') > -1 ? $0 : '';
+    });
+}
+
+var data_timecodes = [
+    {#timecodes}
+    {id: "{_id}", seconds: "{seconds}", length: "{length}", timecodein: {start}, timecodeout: {end}, character: "{character}", transcription: "{original|s}", translation: "{translations[0].text|s}"},
+    {/timecodes}
+];
+
+var player = null;
+
+function save(row, type, text) {
+    console.log(type);
+    if(type!="translation"){
+        var data = {};
+        if(type=="transcription")
+            data.original = text;
+        else if(type=="timecodein")
+            data.tc_in = text;
+        else if(type=="timecodeout")
+            data.tc_out = text;
+        else if(type=="character")
+            data.character = text;
+
+        var data_sent = {
+            type: "transcription",
+            action: "update",
+            id: data_timecodes[row].id,
+            data: data
+        };
+        addToSocketQueue(data_sent);
+    }
+    else {
+         addToSocketQueue({
+            type: "translation",
+            part: data_timecodes[row].id,
+            translation: text
+        });
+    }
+}
+
+
+function getSpreadsheetColFromName(instance, name)
+{
+    var n_cols  =   instance.countCols();
+    var i       =   1;
+
+    for (i=1; i<=n_cols; i++)
+    {
+        if (name.toLowerCase() == instance.getColHeader(i).toLowerCase()) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+
+$(document).ready(function(){
+    var sources = [];
+    var url = "{project.video.url}";
+    if(url.indexOf("https://www.youtube.com")==0) {
+        sources.push({ type: "video/youtube", src: url });
+    }
+    else {
+        sources.push({src: url});
+    }
+    player = videojs('video', {
+        controls: true,
+        autoplay: true,
+        techOrder: ["html5", "youtube"],
+        preload: "auto",
+        playbackRates: [0.2,0.5,0.8,1,1.5,2],
+        controlBar:{
+        },
+        sources: sources
+    });
+
+    var current_timecode = null;
+    setInterval(function () {
+        if(current_timecode!=null){
+            var whereYouAt = player.currentTime();
+            if(whereYouAt >= parseFloat(current_timecode.seconds)+parseFloat(current_timecode.length)){
+                player.currentTime(current_timecode.seconds);
+            }
+        }
+    }, 50);
+
+
+    current_timecode = data_timecodes[0];
+
+    var timecodeRenderer = function(instance, td, row, col, prop, value, cellProperties) {
+        td.innerHTML = moment.duration(value, "seconds").format("hh:mm:ss.SSS", { trim: false });
+        return td;
+    };
+    var timecodeEditor = Handsontable.editors.TextEditor.prototype.extend();
+    timecodeEditor.prototype.setValue = function(newValue) {
+        this.TEXTAREA.value = moment.duration(parseFloat(newValue), "seconds").format("hh:mm:ss.SSS", { trim: false });
+    };
+    timecodeEditor.prototype.getValue = function(newValue) {
+        return moment.duration(this.TEXTAREA.value).asSeconds();
+    };
+
+    var container = document.getElementById('spreadsheet');
+    var hot = new Handsontable(container, {
+        data: data_timecodes,
+        colHeaders: ["Timecode in", "Timecode out", "CPS", "CPL", {#project.use_character}"Character",{/project.use_character} "Transcription"{@eq key=job.mission value="TRANSLATION"}, "Translation"{/eq}],
+        columns: [
+          {
+            data: 'timecodein',
+            renderer: timecodeRenderer,
+            editor: timecodeEditor,
+            width:94,
+            {@ne key=job.mission value="TRANSCRIPTION"}
+            readOnly: true
+            {/ne}
+          },
+          {
+            data: 'timecodeout',
+            renderer: timecodeRenderer,
+            editor: timecodeEditor,
+            width:94,
+            {@ne key=job.mission value="TRANSCRIPTION"}
+            readOnly: true
+            {/ne}
+        },
+        {
+            renderer: function(instance, td, row, col, prop, value, cellProperties){
+                var col_text = getSpreadsheetColFromName(instance, {@eq key=job.mission value="TRANSLATION"}"Translation"{:else}"Transcription"{/eq});
+                var length = parseFloat(instance.getDataAtCell(row, 1))-parseFloat(instance.getDataAtCell(row, 0));
+                var CPS = instance.getDataAtCell(row, col_text)!=null&&instance.getDataAtCell(row, col_text).length>0&&length>0?Math.round(instance.getDataAtCell(row, col_text).replace(/[^A-Z]/gi, "").length/length *10)/10:0;
+
+                td.innerHTML = CPS>17?"<span style='color:red;'>"+CPS+"</span>":CPS;
+            },
+            readOnly: true
+        },
+        {
+            renderer: function(instance, td, row, col, prop, value, cellProperties){
+                var col_text = getSpreadsheetColFromName(instance, {@eq key=job.mission value="TRANSLATION"}"Translation"{:else}"Transcription"{/eq});
+
+                var text = instance.getDataAtCell(row, col_text)!=null?instance.getDataAtCell(row, col_text):"";
+                var lines = text.split(/\n/g);
+                if(lines.length==1) {
+                    var CPL = lines[0].length;
+                    td.innerHTML = CPL>=37?"<span style='color:red;'>"+CPL+"</span>":CPL;
+                }
+                else if(lines.length==2) {
+                    var CPL1 = lines[0].length;
+                    var CPL2 = lines[1].length;
+                    td.innerHTML = CPL1>=37?"<span style='color:red;'>"+CPL1+"</span>":CPL1;
+                    td.innerHTML += "\n";
+                    td.innerHTML += CPL2>=37?"<span style='color:red;'>"+CPL2+"</span>":CPL2;
+                }
+                else {
+                    td.innerHTML = "<span style='color:red;'>Too many lines</span>";
+                }
+            },
+            readOnly: true
+        },
+        {#project.use_character}
+          {
+            data: 'character',
+            {@ne key=job.mission value="TRANSCRIPTION"}
+            readOnly: true
+            {/ne}
+          },
+          {/project.use_character}
+          {
+            data: 'transcription',
+            {@ne key=job.mission value="TRANSCRIPTION"}
+            readOnly: true,
+            {/ne}
+            renderer: function(instance, td, row, col, prop, value, cellProperties) {
+                var escaped = Handsontable.helper.stringify(value);
+                escaped = strip_tags(escaped, '<em><b><strong><a><i>');
+                td.innerHTML = escaped;
+
+                return td;
+            }
+          }
+          {@eq key=job.mission value="TRANSLATION"}
+          ,
+          {
+            data: 'translation',
+            renderer: function(instance, td, row, col, prop, value, cellProperties) {
+                var escaped = Handsontable.helper.stringify(value);
+                escaped = strip_tags(escaped, '<em><b><strong><a><i>');
+                td.innerHTML = escaped;
+
+                return td;
+            }
+          }
+          {/eq}
+        ],
+        minSpareRows: 1,
+        manualColumnResize: true,
+        stretchH: 'all',
+        rowHeaders: true,
+        contextMenu: false,
+        currentRowClassName: 'currentRow',
+        autoColumnSize: false,
+        height: $(window).height()/2,
+        afterSelection: function(r, c, r2, c2){
+            current_timecode = data_timecodes[r];
+            player.currentTime(data_timecodes[r].seconds);
+        },
+        afterChange: function(changes, source) {
+            if(source!="loadData" && source!="populateFromArray"){
+                for(var i=0;i<changes.length;i++){
+                    console.log(changes);
+                    save(changes[i][0], changes[i][1], changes[i][3]);
+                }
+            }
+        },
+        beforeStretchingColumnWidth: function(stretchedWidth, column) {
+            if(column == 0 || column == 1) {
+                return 94;
+            }
+            else if(column == 2 || column == 3) {
+                return 50;
+            }
+            {#project.use_character}
+            else if(column == 4){
+                return 94;
+            }
+            {/project.use_character}
+            else {
+                return stretchedWidth;
+            }
+        }
+    });
+
+    $(window).resize(function(){
+        hot.updateSettings({
+            width: $("#box_body").width()
+        });
+    });
+});
+</script>
+{/custom_js}

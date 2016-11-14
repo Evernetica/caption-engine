@@ -1,0 +1,159 @@
+<!--This file is part of Captiz.
+
+Captiz is free software: you can redistribute it and/or modify
+it under the terms of the Affero GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Captiz is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+Affero GNU General Public License for more details.
+
+You should have received a copy of the Affero GNU General Public License
+along with Captiz.  If not, see <http://www.gnu.org/licenses/>.-->
+
+{>"layouts/freelance" empty_sidebar="1" no_validation="1" no_menu="1" /}
+{<sequences_menu}active{/sequences_menu}
+
+{<title}Transcription{/title}
+
+{<custom_css}
+<link href="//vjs.zencdn.net/5.9.2/video-js.min.css" rel="stylesheet">
+<link rel="stylesheet" media="screen" href="{base_url}css/handsontable.full.min.css">
+{/custom_css}
+
+{<sidebar}
+<div id="explanations"></div>
+{/sidebar}
+
+{<body}
+{>"transcription/player"/}
+{/body}
+
+
+{<custom_js}
+<script>
+window.globals = { };
+</script>
+
+<script src="{base_url}js/3rd/paper-full.min.js"></script>
+
+<script src="//vjs.zencdn.net/5.9.2/video.min.js"></script>
+<script src="{base_url}js/videojs.plugin.s3.js"></script>
+<script src="{base_url}js/3rd/projector.min.js"></script>
+<script src="//katspaugh.github.io/wavesurfer.js/dist/wavesurfer.min.js"></script>
+
+<script src="{base_url}js/3rd/mousetrap.min.js"></script>
+
+<script src="{base_url}js/3rd/handsontable.full.min.js"></script>
+<script src="{base_url}js/3rd/moment-duration-format.js"></script>
+
+<script type="text/paperscript" src="{base_url}js/transcription_player_timeline.js" canvas="timelineCanvas"></script>
+<script src="{base_url}js/transcription_player.js"></script>
+
+<script>
+var current_step=1;
+function loadStep(){
+    if(current_step == 1){
+        $("#explanations").html("<h2>Let's begin</h2> Press "+CaptizTranscription.getCurrentShortcut().modifier+"+"+String.fromCharCode(CaptizTranscription.getCurrentShortcut().keys.playpause)+" to play the video.");
+
+        player.one("play", function(){
+            setTimeout(function(){
+                current_step++;
+                loadStep();
+            }, 1000);
+        });
+    }
+    else if(current_step == 2){
+        $("#explanations").html("<h2>Good !</h2> Now, press "+CaptizTranscription.getCurrentShortcut().modifier+"+"+String.fromCharCode(CaptizTranscription.getCurrentShortcut().keys.playpause)+" to pause the video.");
+
+        player.one("pause", function(){
+            setTimeout(function(){
+                current_step++;
+                loadStep();
+            }, 1000);
+        });
+    }
+    else if(current_step == 3){
+        player.pause();
+        player.currentTime(12.5);
+
+        $("#explanations").html("<h2>It's a good start !</h2> Now we're going to add a new timecode.<br /> Press "+CaptizTranscription.getCurrentShortcut().modifier+"+"+String.fromCharCode(CaptizTranscription.getCurrentShortcut().keys.add_position)+" to add a timecode at the current time.");
+
+        $(document).keydown(function(e){
+            if(e.altKey && e.which == CaptizTranscription.getCurrentShortcut().keys.add_position){
+                setTimeout(function(){
+                    CaptizTranscription.selectTimecode(0);
+                    $("#explanations").append("<br /><br /><h4>Add the following text to the subtitle using the text input : \"What brings you to the land of the gatekeepers\".</h4>");
+
+                    current_timecode_id = 0;
+
+                    $("#timecode_content").keyup(function(){
+                        $("#timecode_content").off("keyup");
+                        setTimeout(function(){
+                            current_step++;
+                            loadStep();
+                        }, 700);
+                    });
+                }, 1000);
+            }
+        });
+    }
+    else if(current_step == 4){
+        $("#explanations").html("<h2>Adjust timecodes</h2> You can use the blue handles on the timeline to adjust the start and end of your subtitle or you can press  "+CaptizTranscription.getCurrentShortcut().modifier+"+"+String.fromCharCode(CaptizTranscription.getCurrentShortcut().keys.cut_start)+" and "+CaptizTranscription.getCurrentShortcut().modifier+"+"+String.fromCharCode(CaptizTranscription.getCurrentShortcut().keys.cut_end)+" to set current current timecode start or end at current time.");
+
+        $(document).keydown(function(e){
+            if((e.altKey && e.which == CaptizTranscription.getCurrentShortcut().keys.cut_start) || (e.altKey && e.which == CaptizTranscription.getCurrentShortcut().keys.cut_end)){
+                if(current_step==4){
+                    current_step++;
+                    loadStep();
+                }
+            }
+        });
+    }
+    else if(current_step == 5){
+        $("#explanations").html("<h2>A new timecode</h2> Press  "+CaptizTranscription.getCurrentShortcut().modifier+"+"+String.fromCharCode(CaptizTranscription.getCurrentShortcut().keys.add_current)+" to add a new timecode a few milliseconds after current one.");
+
+        $(document).keydown(function(e){
+            if(e.altKey && e.which == CaptizTranscription.getCurrentShortcut().keys.add_current){
+                if(current_step==5){
+                    current_step++;
+                    loadStep();
+                }
+            }
+        });
+    }
+    else if(current_step == 6){
+        $("#explanations").html("<h2>Nice ! :)</h2> You've now discovered the basics of Captiz Transcription, when you're ready you can go back to the job.");
+    }
+    else{
+        $("#explanations").html("");
+    }
+}
+
+$(document).ready(function(){
+    player = videojs('video', {
+        controls: true,
+        autoplay: false,
+        preload: "auto",
+        playbackRates: [0.2,0.5,0.8,1,1.5,2],
+        controlBar:{
+        }
+    });
+    player.src([
+        { type: "video/mp4", src: "https://download.blender.org/durian/trailer/sintel_trailer-480p.mp4" }
+    ]);
+
+    CaptizTranscription.init({
+        player: player,
+        loadTimecodes: function(callback){
+            callback([]);
+        },
+        canvasLoaded: function(){
+            loadStep();
+        }
+    });
+});
+</script>
+{/custom_js}

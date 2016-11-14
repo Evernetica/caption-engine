@@ -1,0 +1,351 @@
+<!--This file is part of Captiz.
+
+Captiz is free software: you can redistribute it and/or modify
+it under the terms of the Affero GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Captiz is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+Affero GNU General Public License for more details.
+
+You should have received a copy of the Affero GNU General Public License
+along with Captiz.  If not, see <http://www.gnu.org/licenses/>.-->
+
+{>"layouts/freelance"/}
+{<sequences_menu}active{/sequences_menu}
+
+{<title}Translation{/title}
+
+{<custom_css}
+<link href="//vjs.zencdn.net/5.0/video-js.min.css" rel="stylesheet">
+<link href="{base_url}css/projector.min.css" rel="stylesheet">
+{/custom_css}
+
+{<sidebar}
+<h2>Translation</h2>
+<div>To <b>{job.lang_target}</b></div>
+
+<h3>Shortcuts</h3>
+<ul>
+    <li>Alt+Enter : Next translation</li>
+    <li>Enter : New line</li>
+</ul>
+{/sidebar}
+
+{<body}
+<div class="row" id="page">
+  <div class="col-md-8 col-md-offset-2">
+      <div class="box">
+          <div class="box-header with-border">
+              <h3 class="box-title">Translation</h3>
+          </div><!-- /.box-header -->
+          <div class="box-body">
+              <button id="btnPrevious" class="btn btn-primary" style="float:left;">Previous</button>
+              <button id="btnNext" class="btn btn-primary" style="float:right;">Next</button>
+              <div style="clear:both"></div>
+
+              <div id="videos">
+                  <div class="part" id="part">
+                    <video id="video" class="video-js vjs-16-9" controls loop>
+                        <p class="vjs-no-js">
+                          To view this video please enable JavaScript, and consider upgrading to a web browser that
+                          <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
+                        </p>
+                    </video>
+                    <br />
+                    <div class="form-group">
+                        <div class="col-lg-12" style="text-align:center;">
+                            <b id="character">CHARACTER</b><br /><br />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputTranscription" class="col-lg-2 control-label">Transcription</label>
+                        <div class="col-lg-9">
+                            <div class="form-control" id="inputTranscription" name="transcription" disabled style="min-height:50px;height:auto;" contenteditable>TRANSCRIPTION</div>
+                        </div>
+                    </div><br /><br />
+                    <div class="form-group">
+                        <label for="inputTranslation" class="col-lg-2 control-label">Translation</label>
+                        <div class="col-lg-9">
+                            <textarea class="form-control" id="inputTranslation" name="translation"  rows="2" style="margin-bottom:5px;">TRANSLATION</textarea>
+
+                            <button id="btn_bold" class="btn btn-warning btn-md"><b>Bold</b></button> <button id="btn_italic" class="btn btn-warning btn-md"><i>Italic</i></button><br /><br />
+                            CPL : <span id="cplValue"></span><br />CPS : <span id="cpsValue"></span>
+                        </div>
+                    </div>
+                  </div>
+              </div>
+          </div><!-- /.box-body -->
+      </div><!-- /.box -->
+  </div>
+</div>
+{/body}
+
+{<custom_js}
+<script src="//vjs.zencdn.net/5.0/video.min.js"></script>
+<script src="{base_url}js/videojs.plugin.youtube.min.js"></script>
+
+<script>
+var page_size = 4;
+var timecodes=Array();
+var player = null;
+var current_timecode = null;
+
+var current_style = 'NONE';
+
+function getStyle(text){
+    if(text.substring(0, 3) == "<i>"){
+        return 'ITALIC';
+    }
+    else if(text.substring(0, 3) == "<b>" || text.substring(0, 3) == "<em>"){
+        return 'BOLD';
+    }
+    else {
+        return 'NONE';
+    }
+}
+function cleanStyle(text){
+    return text.replace(/<[\/]?i>/g, "").replace(/<[\/]?b>/g, "");
+}
+function applyStyle(el, style) {
+    if(style == "ITALIC"){
+        el.css("font-weight", "");
+        el.css("font-style", "italic");
+
+        $("#btn_italic").removeClass("btn-warning").addClass("btn-info");
+        $("#btn_bold").removeClass("btn-info").addClass("btn-warning");
+    }
+    else if(style == "BOLD"){
+        el.css("font-style", "");
+        el.css("font-weight", "bold");
+        $("#btn_bold").removeClass("btn-warning").addClass("btn-info");
+        $("#btn_italic").removeClass("btn-info").addClass("btn-warning");
+    }
+    else if(style == "NONE"){
+        el.css("font-style", "");
+        el.css("font-weight", "");
+        $("#btn_italic").removeClass("btn-info").addClass("btn-warning");
+        $("#btn_bold").removeClass("btn-info").addClass("btn-warning");
+    }
+}
+function addStyle(text, style){
+    if(style == "ITALIC"){
+        return "<i>"+text+"</i>";
+    }
+    else if(style == "BOLD"){
+        return "<b>"+text+"</b>";
+    }
+    else if(style == "NONE"){
+        return text;
+    }
+}
+
+function loadTimecodes(page, callback){
+  $.ajax({
+    url : '{base_url}freelance/timecodes',
+    type : 'GET',
+    dataType : 'json',
+    contentType: "application/json",
+    success: function (data) {
+      console.log(data);
+      timecodes = data.timecodes;
+      callback();
+    },
+    error: function (error) {
+      var x = error;
+    }
+  });
+}
+
+function unloadPart(oldpart){
+  if(document.getElementById("part"+oldpart) !== null) {
+  }
+}
+
+function loadPart(newpart){
+  if(newpart==0){
+    $("#btnPrevious").prop( "disabled", true );
+  }
+  else{
+    $("#btnPrevious").prop( "disabled", false );
+  }
+
+  if(newpart==timecodes.length){
+    $("#btnNext").prop( "disabled", true );
+  }
+  else{
+    $("#btnNext").prop( "disabled", false );
+  }
+
+  current_timecode = timecodes[current_part];
+  player.currentTime(current_timecode.seconds);
+
+  var original = timecodes[newpart].original_text!=null?timecodes[newpart].original_text.replace(/\n/g, "<br />"):"";
+  $("#inputTranscription").html(original);
+  $("#character").html(timecodes[newpart].character?"- "+timecodes[newpart].character+" -":"");
+
+  if(timecodes[newpart].translations && timecodes[newpart].translations.length==1){
+      var translation = timecodes[newpart].translations[0].text;
+      current_style = getStyle(translation);
+      translation = cleanStyle(translation);
+      applyStyle($("#inputTranslation"), current_style);
+
+      $("#inputTranslation").val(translation).trigger("change");
+  }
+  else{
+      current_style = getStyle(original);
+      $("#inputTranslation").val("").trigger("change");
+      applyStyle($("#inputTranslation"), current_style);
+  }
+
+  $("#inputTranslation").focus();
+
+  localStorage.setItem('{translator.access_code}', "timecode"+newpart);
+  document.location.hash = "timecode"+newpart;
+}
+
+function save() {
+    var text = $('#inputTranslation').val();
+    if(text.length>0){
+        text = addStyle(text, current_style);
+        if(timecodes[current_part].translations == undefined) {
+            timecodes[current_part].translations = Array();
+            timecodes[current_part].translations.push({text: text});
+        }
+        else if(timecodes[current_part].translations.length > 0) {
+            timecodes[current_part].translations[0].text = text;
+        }
+        else {
+            timecodes[current_part].translations.push({text: text});
+        }
+
+        console.log(timecodes[current_part]._id);
+        addToSocketQueue({
+            type: "translation",
+            part: timecodes[current_part]._id,
+            translation: text
+        });
+    }
+}
+function next(){
+  save();
+  if(current_part==timecodes.length){
+    $(".panel-body").append("Translation finished !");
+  }
+  else{
+    document.location.hash = "timecode"+(parseInt(current_part)+1);
+  }
+}
+
+var current_part=0;
+$(document).ready(function(){
+    var sources = [];
+    var url = "{project.video.url}";
+    if(url.indexOf("https://www.youtube.com")==0) {
+        sources.push({ type: "video/youtube", src: url });
+    }
+    else {
+        sources.push({src: url});
+    }
+    player = videojs('video', {
+        controls: true,
+        autoplay: true,
+        preload: "auto",
+        techOrder: ["html5", "youtube"],
+        controlBar:{
+            progressControl: false,
+            remainingTimeDisplay: false
+        },
+        sources: sources
+    });
+
+    setInterval(function () {
+        if(current_timecode!=null){
+            var whereYouAt = player.currentTime();
+            if(whereYouAt >= parseFloat(current_timecode.seconds)+parseFloat(current_timecode.length)){
+                player.currentTime(current_timecode.seconds);
+            }
+        }
+    }, 50);
+
+
+  loadTimecodes(0, function(){
+    window.onhashchange = function(){
+      unloadPart(current_part);
+      var hash = document.location.hash.replace("#timecode","");
+      if ((hash=="" || hash%1!=0) && localStorage.getItem('{job.access_code}')){
+        document.location.hash = localStorage.getItem('{job.access_code}');
+        current_part = localStorage.getItem('{job.access_code}').replace("timecode", "");
+        console.log("CURRENT PART : " + current_part);
+        console.log("HTML5 SAVE : " + localStorage.getItem('{job.access_code}'));
+      }
+      else if(hash=="" || hash%1!=0) {
+        document.location.hash = "timecode0";
+      }
+      else {
+        current_part = hash;
+      }
+      loadPart(current_part);
+    };
+    window.onhashchange();
+  });
+
+
+  $(document).on("keydown", "textarea", function (e) {
+      if(e.altKey && e.which === 13) {
+          e.preventDefault();
+          next();
+      }
+      else if(e.which === 13) {
+      }
+  });
+  $("#inputTranslation").bind("input change", function() {
+      var text = $(this).val()!=null?$(this).val():"";
+      var length = parseFloat(current_timecode.length);
+      var CPS = text.length>0&&length>0?Math.round(text.replace(/[^A-Z]/gi, "").length/length *10)/10:0;
+      $("#cpsValue").html(CPS>17?"<span style='color:red;'>"+CPS+"</span>":CPS);
+
+      var lines = text.split(/\n/g);
+      if(lines.length==1) {
+          var CPL = lines[0].length;
+          $("#cplValue").html(CPL>=37?"<span style='color:red;'>"+CPL+"</span>":CPL);
+      }
+      else if(lines.length==2) {
+          var CPL1 = lines[0].length;
+          var CPL2 = lines[1].length;
+          var str = CPL1>=37?"<span style='color:red;'>"+CPL1+"</span>":CPL1;
+          str += " / ";
+          str += CPL2>=37?"<span style='color:red;'>"+CPL2+"</span>":CPL2;
+          $("#cplValue").html(str);
+      }
+      else {
+          $("#cplValue").html("<span style='color:red;'>Too many lines</span>");
+      }
+  });
+
+  $("#btnPrevious").click(function(){
+    save();
+    if(current_part>0){
+      if(current_part<=timecodes.length)
+        unloadPart(current_part);
+      document.location.hash = "timecode"+(current_part-1);
+    }
+  });
+  $("#btnNext").click(function(){
+    next();
+  });
+  $("#btn_italic").click(function(){
+      current_style = (current_style=="ITALIC"?"NONE":"ITALIC");
+      applyStyle($("#inputTranslation"), current_style);
+      $("#inputTranslation").focus();
+  });
+  $("#btn_bold").click(function(){
+      current_style = (current_style=="BOLD"?"NONE":"BOLD");
+      applyStyle($("#inputTranslation"), current_style);
+      $("#inputTranslation").focus();
+  });
+});
+</script>
+{/custom_js}

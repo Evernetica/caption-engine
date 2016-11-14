@@ -1,0 +1,62 @@
+<!--This file is part of Captiz.
+
+Captiz is free software: you can redistribute it and/or modify
+it under the terms of the Affero GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Captiz is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+Affero GNU General Public License for more details.
+
+You should have received a copy of the Affero GNU General Public License
+along with Captiz.  If not, see <http://www.gnu.org/licenses/>.-->
+
+{>"layouts/master"/}
+
+{<project_menu}active{/project_menu}
+
+{<sidebar}
+<ul class="sidebar-menu">
+    <div class="sidebar-form">
+      <div class="input-group">
+        <input type="text" name="q" class="form-control" id="search_project" placeholder="Search..." autocomplete="off">
+        <span class="input-group-btn">
+          <button type="submit" name="search" id="search-btn" class="btn btn-flat"><i class="fa fa-search"></i></button>
+        </span>
+      </div>
+    </div>
+    <li class="header">My projects</li>
+    {#projects}
+    <li class="{@eq key=project.id value=data.id}active {/eq} li_project">
+      <a href="{base_url}project/{data.id}/display">
+          <i class="fa {data.getPicto}"></i> <span style="text-overflow:ellipsis;width:88%;overflow:hidden;display:inline-block;" class="li_project_title">{!({progress}%) !}{data.name}</span>
+      </a>
+    </li>
+    {/projects}
+</ul><!-- /.sidebar-menu -->
+
+{/sidebar}
+
+{<custom_js}
+<script>
+$(document).ready(function(){
+    $("#search_project").bind("input", function(){
+        var val = $("#search_project").val();
+        if(val == ""){
+            $(".li_project").show();
+        }
+        else {
+            $(".li_project").hide();
+            $(".li_project").filter(function(index){
+                return $(this).find(".li_project_title").html().toLowerCase().indexOf(val.toLowerCase()) != -1;
+            }).show();
+        }
+    });
+});
+</script>
+
+{+custom_js_2 /}
+
+{/custom_js}

@@ -1,0 +1,150 @@
+<!--This file is part of Captiz.
+
+Captiz is free software: you can redistribute it and/or modify
+it under the terms of the Affero GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Captiz is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+Affero GNU General Public License for more details.
+
+You should have received a copy of the Affero GNU General Public License
+along with Captiz.  If not, see <http://www.gnu.org/licenses/>.-->
+
+{>"layouts/freelance"/}
+
+{<transcription_menu}active{/transcription_menu}
+
+{<title}Transcription{/title}
+
+{<custom_css}
+<link href="//vjs.zencdn.net/5.9.2/video-js.min.css" rel="stylesheet">
+<link rel="stylesheet" media="screen" href="{base_url}css/handsontable.full.min.css">
+<link href="{base_url}css/projector.min.css" rel="stylesheet">
+
+<style type="text/css">
+/* Scale canvas with resize attribute to full size */
+canvas[resize] {
+    width: 100%;
+    height: 100%;
+}
+</style>
+{/custom_css}
+
+{<sidebar}
+<h2>Transcription</h2>
+<div>In <b>{job.lang_target}</b></div>
+<br />
+<div class="form-inline">
+  <h4>Shortcuts :</h4>
+  Current : <select id="shortcuts_type" class="form-control" style="color:black;display:inline;">
+  <option value="AZERTY_ALT">AZERTY - ALT</option>
+  <option value="QWERTY_ALT">QWERTY - ALT</option>
+</select><br /><br />
+<ul id="shortcuts_description">
+</ul>
+</div>
+{/sidebar}
+
+{<body}
+
+{>"transcription/player"/}
+
+{/body}
+
+{<custom_js}
+<script>
+  window.globals = { };
+</script>
+
+<script src="{base_url}js/3rd/paper-full.min.js"></script>
+
+<script src="//vjs.zencdn.net/5.9.2/video.min.js"></script>
+<script src="{base_url}js/videojs.plugin.youtube.min.js"></script>
+<script src="{base_url}js/3rd/mousetrap.min.js"></script>
+
+<script src="{base_url}js/3rd/handsontable.full.min.js"></script>
+<script src="{base_url}js/3rd/moment-duration-format.js"></script>
+
+<script type="text/paperscript" src="{base_url}js/transcription_player_timeline.js" canvas="timelineCanvas"></script>
+<script src="{base_url}js/transcription_player.js"></script>
+
+<script>
+  $(document).ready(function(){
+
+    $("#savingtext").hide();
+
+    var options = {};
+
+    var sources = [];
+    var url = "{project.video.url}";
+    if(url.indexOf("https://www.youtube.com")==0) {
+        sources.push({ type: "video/youtube", src: url });
+    }
+    else {
+        sources.push({src: url});
+    }
+    player = videojs('video', {
+      controls: true,
+      autoplay: true,
+      techOrder: ["html5", "youtube"],
+      preload: "auto",
+      playbackRates: [0.2,0.5,0.8,1,1.5,2],
+      controlBar:{
+      },
+      sources: sources
+    });
+
+
+  options = {
+    player: player,
+    display_translation: false,
+    display_character: {?project.use_character}true{:else}false{/project.use_character},
+    loadTimecodes: function(callback){
+      $.ajax({
+        url : '{base_url}freelance/timecodes',
+        type : 'GET',
+        dataType : 'json',
+        contentType: "application/json",
+        success: function (data) {
+          callback(data.timecodes, "{job.mission}", "{job.access_code}");
+        },
+        error: function (error) {
+          var x = error;
+        }
+      });
+    },
+    updateTimecode: function(id, action, data){
+        if(id!=-1 || action=="add") {
+            if(action=="add") id = (Math.random() + 1).toString(36).substring(10);
+            var data_sent = {
+                type: "transcription",
+                action: action,
+                id: id,
+                data: data
+            };
+            if(action=="add"){
+                CaptizTranscription.addTimecode(id, data_sent.data, true);
+                addToSocketQueue(data_sent, function(new_id){
+                    console.log("old : "+id);
+                    console.log("New : "+new_id);
+                    CaptizTranscription.updateTimecodeId(id, new_id);
+                });
+            } else {
+                addToSocketQueue(data_sent);
+            }
+        }
+    }
+  };
+
+    CaptizTranscription.init(options);
+
+    $("#shortcuts_type").change(function(){
+      CaptizTranscription.chooseShortcuts($(this).val());
+    });
+
+  });
+</script>
+{/custom_js}
