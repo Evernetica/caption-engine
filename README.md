@@ -1,4 +1,4 @@
-![](images/AGPL.png)
+![AGPL3.0](https://img.shields.io/badge/license-AGPL%203.0-blue.svg) ![Node](https://img.shields.io/badge/Node.js-6.8-green.svg)
 
 # Captiz
 
@@ -34,6 +34,18 @@ Then start your server :
     node server.js
     
 You can access the application by going to https://localhost:8001. Default user/password is admin@website.com / admin
+
+Don't forget to set up emails below.
+
+## Configure emails
+
+In order to create a new user or invite someone to create subtitles, you'll need to set up email sending. By default we use [Sendgrid](https://sendgrid.com/) to send emails.
+
+Create and configure your account on sendgrid.com, then go to Settings > API Keys > Create API Key > General API Key > Full Access to Mail Send.
+
+Copy this generated api key in docker-compose.yml in *SENDGRID_API_KEY* variable. You don't need *SENDGRID_TEMPLATE_ID* yet, you can add one later.
+
+Restart the server and you're done.
 
 ## Makefile commands
 
