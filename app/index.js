@@ -42,7 +42,6 @@ var bodyParser = require('body-parser');
 var models = require('./models');
 
 var winston = require('winston');
-require('winston-googlecloud');
 
 winston.loggers.add('default', {
     transports: [
