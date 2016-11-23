@@ -54,45 +54,10 @@ along with Captiz.  If not, see <http://www.gnu.org/licenses/>.-->
         <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
         <![endif]-->
 
-        <!-- Chatra -->
-        {!<script>
-        ChatraID = '6tEpnH5wn5XXpqMvJ';
-        (function(d, w, c) {
-            var n = d.getElementsByTagName('script')[0],
-                s = d.createElement('script');
-            w[c] = w[c] || function() {
-                (w[c].q = w[c].q || []).push(arguments);
-            };
-            s.async = true;
-            s.src = (d.location.protocol === 'https:' ? 'https:': 'http:')
-                + '//call.chatra.io/chatra.js';
-            n.parentNode.insertBefore(s, n);
-        })(document, window, 'Chatra');
-
-        window.ChatraIntegration = {
-            name: '{job.email}',
-            email: '{job.email}',
-            'mission': '{job.mission}'
-        };
-    </script>!}
-        <!-- /Chatra -->
-
             <script src="{base_url}js/3rd/socket.io.js"></script>
             <script>
               {^multiple_windows}
               var socket_freelance = io.connect('/socket_freelance');
-              /*socket_freelance.on('new_window', function(){
-                   console.log("on new window");
-                   socket_freelance.disconnect();
-
-                   $("#page_block").show();
-                   $(".wrapper").remove();
-                   if(typeof save_interval != 'undefined' && save_interval){
-                     console.log("Clear interval");
-                     clearInterval(save_interval);
-                   }
-                   alert("Sorry, this project is already opened in another window.");
-             });*/
 
              window.onbeforeunload = function(e){
                  if(socket_queue.length>0) {
