@@ -140,10 +140,7 @@ module.exports.controller = function(router) {
                 req.session.freelance_proofread_id = project._id;
                 req.session.toast_message = 'You\'ve been logged in with success!';
 
-                if(req.query.review == 1) {
-                    res.redirect('/freelance/review');
-                }
-                else if (job.mission == 'TRANSLATION') {
+                if (job.mission == 'TRANSLATION') {
                     res.redirect('/freelance/translation');
                 } else if (job.mission == 'TRANSCRIPTION') {
                     res.redirect('/freelance/transcription');
@@ -209,37 +206,6 @@ module.exports.controller = function(router) {
             });
         }
     });
-
-    /*TODO: REMOVE LEGACY CODE*/
-    router.get('/transcriptor/:code', router.routeLogAccess, function(req, res) {
-        models.Project.findOne({
-            'jobs.access_code': req.params.code,
-            'jobs.password': null,
-            is_deleted: {
-                $ne: true
-            }
-        }, {
-            'jobs': {
-                $elemMatch: {
-                    'access_code': req.params.code,
-                    'password': null,
-                }
-            }
-        }).then(function(project) {
-            if (project != null && project.jobs.length == 1) {
-                var job = project.jobs[0];
-                req.session.freelance_logged = true;
-                req.session.freelance_logged_code = job.access_code;
-                res.redirect('/freelance/transcription');
-            } else {
-                res.redirect('/freelance/login');
-            }
-        })
-        .catch(function(err) {
-            console.error(err);
-        });
-    });
-
 
     router.get('/freelance/translation', router.routeLogAccess, function(req, res) {
         var params = {};
