@@ -231,8 +231,10 @@ module.exports.controller = function(router) {
                                 }
 
                                 req.view_params.langs = [];
-                                for(i=0;i<sub_projects[max_id].jobs.length;i++) {
-                                    req.view_params.langs.push(sub_projects[max_id].jobs[i].lang_target);
+                                if(sub_projects[max_id]!=undefined) {
+                                    for(i=0;i<sub_projects[max_id].jobs.length;i++) {
+                                        req.view_params.langs.push(sub_projects[max_id].jobs[i].lang_target);
+                                    }
                                 }
 
                                 for(i=0;i<sub_projects.length;i++){
