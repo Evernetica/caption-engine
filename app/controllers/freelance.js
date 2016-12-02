@@ -471,6 +471,7 @@ module.exports.controller = function(router) {
                 }
             })
             .populate('_manager')
+            .populate('_parent')
             .exec()
             .then(function(project) {
                 if (project != null && project.jobs.length == 1) {
