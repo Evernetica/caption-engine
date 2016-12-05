@@ -42,6 +42,7 @@ along with Captiz.  If not, see <http://www.gnu.org/licenses/>.-->
                 </div>
                 <div class="row" id="row_infos">
                     <div class="col-md-8 col-md-offset-2">
+                        <h2>Informations</h2>
                         <label for="inputProjectname" class="control-label">Project name</label>&nbsp;&nbsp;
                         <input required type="text" class="form-control" id="inputProjectname" name="projectname" placeholder="Project name" />
                         <br />
@@ -50,11 +51,17 @@ along with Captiz.  If not, see <http://www.gnu.org/licenses/>.-->
                         <br />
                         <input type="checkbox" id="useCharacter" name="useCharacter" /> <label for="useCharacter" class="control-label">I need the character name for my captions</label>
                         <br />
+                        <button type="submit" class="btn btn-primary" id="next_infos">Next</button>
                     </div>
                 </div>
-                <div class="row" id="row_infos">
+                <div class="row" id="row_sources">
                     <div class="col-md-8 col-md-offset-2">
-                        <button type="submit" class="btn btn-primary" id="next">Next</button>
+                        <h2>Video source</h2>
+                        <input type="radio" name="source_choice" value="youtube"> Youtube<br/>
+
+                        <div class="source_input" id="source_youtube">
+                            <input type="text" name="video_url" class="form-control" id="editVideoUrl" placeholder="Public video url" /><br /><input type="button" class="btn btn-warning" value="Next" id="btnVideoUrl" /><br />
+                        </div>
                     </div>
                 </div>
           </div> <!-- /.box-body -->
@@ -67,19 +74,53 @@ along with Captiz.  If not, see <http://www.gnu.org/licenses/>.-->
 <script>
 var current_step = '';
 var next_step_id = 'begin';
+var video_source;
+
 function next_step(){
     current_step = next_step_id;
 
     if(current_step == 'begin') {
         $("#row_infos").hide();
+        $("#row_sources").hide();
         $("#next").hide();
         next_step_id = 'infos';
     }
     else if(current_step == 'infos') {
         $("#row_infos").fadeIn();
-        $("#next").html("Create");
+        $("#next").html("Next");
         $("#next").fadeIn();
+        next_step_id = 'sources';
+    }
+    else if(current_step == 'sources') {
+        $(".source_input").hide();
+        $("#row_sources").fadeIn();
+        $("#next").html("Create");
         next_step_id = 'create';
+    }
+    else if(current_step == 'create') {
+        var type = $(".square_button.checked").first().attr('id') == 'btn_single' ? 'single':'multiple';
+        var projectname = $("#inputProjectname").val();
+        var description = $("#inputDescription").val();
+        var useCharacter = $("#useCharacter").is(':checked') ? true:undefined;
+
+        var url;
+        if(video_source == "youtube"){
+            url = $("#editVideoUrl").val();
+        }
+
+        $.post("{base_url}project/create",
+            {
+                projectname: projectname,
+                description: description,
+                type: type,
+                media_type: "MOVIE",
+                useCharacter: useCharacter,
+                video_url: url
+            },
+            function(data){
+                console.log(data);
+                window.location.href = data.url;
+            });
     }
 }
 
@@ -98,29 +139,24 @@ $(document).ready(function(){
     $(".square_button").click(function(){
         $(".square_button").removeClass("checked");
         $(this).addClass("checked");
+        next_step_id = 'begin';
+        next_step();
         next_step();
     });
 
-    $("#next").click(function(){
-        if(next_step_id == 'create') {
-            var type = $(".square_button.checked").first().attr('id') == 'btn_single' ? 'single':'multiple';
-            var projectname = $("#inputProjectname").val();
-            var description = $("#inputDescription").val();
-            var useCharacter = $("#useCharacter").is(':checked') ? true:undefined;
-            console.log(projectname);
-            $.post("{base_url}project/create",
-                {
-                    projectname: projectname,
-                    description: description,
-                    type: type,
-                    media_type: "MOVIE",
-                    useCharacter: useCharacter
-                },
-                function(data){
-                    console.log(data);
-                    window.location.href = data.url;
-                });
+    $('input[type=radio][name=source_choice]').change(function() {
+        $(".source_choice").fadeOut();
+        if(this.value == "youtube") {
+            $("#source_youtube").fadeIn();
         }
+    });
+
+    $("#next_infos").click(function(){
+        next_step();
+    });
+    $("#btnVideoUrl").click(function(){
+        video_source = "youtube";
+        next_step();
     });
 });
 </script>

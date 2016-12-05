@@ -59,6 +59,7 @@ module.exports.controller = function(router) {
         var parent = null;
         var parent_project = null;
         var name_parent = null;
+        var video_url = req.body.video_url;
 
         console.log(type);
         console.log(name);
@@ -94,8 +95,11 @@ module.exports.controller = function(router) {
                         _manager: req.session.current_user._id,
                         _company: req.session.current_user._company._id,
                         _parent: parent,
-                        status: 'NONE',
-                        is_multiple: type=='multiple'?true:false
+                        status: 'ENCODING_FINISHED',
+                        is_multiple: type=='multiple'?true:false,
+                        video: {
+                            url: video_url
+                        }
                     });
 
                     p.save().then(function(product) {
