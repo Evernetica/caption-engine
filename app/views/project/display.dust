@@ -63,11 +63,6 @@ along with Captiz.  If not, see <http://www.gnu.org/licenses/>.-->
                             <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
                           </p>
                         </video>
-                      {:else}
-                        <div id="ytview">
-                            <h4>From a public link</h4>
-                            <input type="text" name="video_url" id="editVideoUrl" placeholder="Public video url" /> <input type="button" class="btn btn-warning" value="Set video" id="btnVideoUrl" /><br />
-                        </div>
                       {/project.video.url}
                   {/project.is_archived}
               </div><!-- /.box-body -->
@@ -506,36 +501,6 @@ $(document).ready(function(){
   $('body').on('hidden.bs.modal', '.modal', function () {
      $(this).removeData('bs.modal');
      $("#watch-modal .modal-content").html("");
-  });
-
-  $("#btnVideoUrl").click(function(){
-      var url = $("#editVideoUrl").val();
-      if(url!="") {
-          setCloseWindowMessage();
-          var prevVal = $("#btnVideoUrl").val();
-          $("#btnVideoUrl").val("Loading...");
-          $("#btnVideoUrl").prop('disabled', true);
-
-          var ajaxdata = {
-            url: url
-          };
-          $.ajax({
-            url : '{base_url}video/{project._id}/set_video',
-            type : 'POST',
-            data : JSON.stringify(ajaxdata),
-            dataType : 'json',
-            contentType: "application/json",
-            success: function (data) {
-                window.onbeforeunload = null;
-                location.reload();
-            },
-            error: function (error) {
-                $("#btnVideoUrl").val(prevVal);
-                $("#btnVideoUrl").prop('disabled', false);
-                window.onbeforeunload = null;
-            }
-          });
-      }
   });
 
   $(".config").hide();
