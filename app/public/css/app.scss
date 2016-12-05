@@ -204,3 +204,25 @@
         }
     }
 }
+
+
+.square_button {
+    background-color: white;
+    width: 200px;
+    height: 200px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 20px;
+    border: 1px solid lightgray;
+
+    &:hover, &.checked {
+        background-color: #F39C12;
+        color: white;
+    }
+    p {
+        font-size: 1.3em;
+        font-weight: bold;
+    }
+}

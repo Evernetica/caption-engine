@@ -21,7 +21,6 @@ along with Captiz.  If not, see <http://www.gnu.org/licenses/>.-->
 {/custom_css}
 
 {<body}
-
 <div class="row">
   <div class="col-md-12">
       <div class="box">
@@ -29,53 +28,61 @@ along with Captiz.  If not, see <http://www.gnu.org/licenses/>.-->
                 <h3 class="box-title">Create a new project</h3>
             </div><!-- /.box-header -->
             <div class="box-body">
-                <form class="form-horizontal" method="POST" action="{base_url}project/create">
-                    <div class="form-inline">
-                      <label for="inputType" class="control-label">I'm working on a</label>&nbsp;&nbsp;
-                      <select class="form-control" id="inputType" name="mediatype">
-                        <option value="MOVIE">Movie</option>
-                        <option value="TV">TV show</option>
-                        <option value="CORPORATE">Corporate film</option>
-                        <option value="ENTERTAINEMENT">Entertainement</option>
-                        <option value="EDUCATION">Educational video (MOOC)</option>
-                      </select>&nbsp;&nbsp;
-                      <label for="inputProjectname" class="control-label">called</label>&nbsp;&nbsp;
-                      <input required type="text" class="form-control" id="inputName" name="projectname" placeholder="Project name" />&nbsp;&nbsp;
-                      <span id="tvshowsettings">
-                          <label for="inputSeason" class="control-label">season</label>&nbsp;&nbsp;
-                          <input type="number" step="1" min="1" class="form-control" id="inputSeason" name="season" placeholder="" style="width:40px" />&nbsp;&nbsp;
-                      </span>
-                      .
+                <div class="row" id="row_type">
+                    <div class="col-md-2 col-md-offset-4">
+                      <div class="square_button" id="btn_single">
+                          <p>Project with a single video</p>
+                      </div>
                     </div>
-                    <br />
-                    {!{#current_user._company.is_saas}
-                    <div class="form-inline">
-                      <label for="inputDeadlineclient" class="control-label">The client deadline is</label>&nbsp;&nbsp;
-                      <input type="text" class="form-control datepicker" id="inputDeadlineclient" name="deadlineclient" placeholder="YYYY-MM-DD" />&nbsp;&nbsp;
-                      <label for="inputDeadlinetranslators" class="control-label">and the freelancers deadline is</label>&nbsp;&nbsp;
-                      <input type="text" class="form-control datepicker" id="inputDeadlinetranslators" name="deadlinetranslators" placeholder="YYYY-MM-DD" />.
+                    <div class="col-md-2">
+                      <div class="square_button" id="btn_multiple">
+                          <p>Project with multiple videos (MOOC, TV Show...)</p>
+                      </div>
                     </div>
-                    <br />
-                    {/current_user._company.is_saas}!}
-                    <div class="form-inline">
-                      <label for="inputDescription" class="control-label">I want freelancers to see instructions below :</label><br />
-                      <textarea class="form-control" rows="4" cols="40" id="inputDescription" name="description" style="width:100%"></textarea>
-                    </div><br />
-
-                      <input type="checkbox" id="useCharacter" name="useCharacter" /> <label for="useCharacter" class="control-label">I need the character name for my captions</label>
-                    <br /><br />
-
-                    <button type="submit" class="btn btn-primary">Create</button>
-              </form>
+                </div>
+                <div class="row" id="row_infos">
+                    <div class="col-md-8 col-md-offset-2">
+                        <label for="inputProjectname" class="control-label">Project name</label>&nbsp;&nbsp;
+                        <input required type="text" class="form-control" id="inputProjectname" name="projectname" placeholder="Project name" />
+                        <br />
+                        <label for="inputDescription" class="control-label">Project description</label><br />
+                        <textarea class="form-control" rows="4" cols="40" id="inputDescription" name="description" style="width:100%"></textarea>
+                        <br />
+                        <input type="checkbox" id="useCharacter" name="useCharacter" /> <label for="useCharacter" class="control-label">I need the character name for my captions</label>
+                        <br />
+                    </div>
+                </div>
+                <div class="row" id="row_infos">
+                    <div class="col-md-8 col-md-offset-2">
+                        <button type="submit" class="btn btn-primary" id="next">Next</button>
+                    </div>
+                </div>
           </div> <!-- /.box-body -->
       </div> <!-- /.box -->
   </div>
-
 </div>
 {/body}
 
 {<custom_js_2}
 <script>
+var current_step = '';
+var next_step_id = 'begin';
+function next_step(){
+    current_step = next_step_id;
+
+    if(current_step == 'begin') {
+        $("#row_infos").hide();
+        $("#next").hide();
+        next_step_id = 'infos';
+    }
+    else if(current_step == 'infos') {
+        $("#row_infos").fadeIn();
+        $("#next").html("Create");
+        $("#next").fadeIn();
+        next_step_id = 'create';
+    }
+}
+
 $(document).ready(function(){
     $("#tvshowsettings").hide();
     $("#inputType").change(function(){
@@ -84,6 +91,35 @@ $(document).ready(function(){
         }
         else {
             $("#tvshowsettings").hide();
+        }
+    });
+
+    next_step();
+    $(".square_button").click(function(){
+        $(".square_button").removeClass("checked");
+        $(this).addClass("checked");
+        next_step();
+    });
+
+    $("#next").click(function(){
+        if(next_step_id == 'create') {
+            var type = $(".square_button.checked").first().attr('id') == 'btn_single' ? 'single':'multiple';
+            var projectname = $("#inputProjectname").val();
+            var description = $("#inputDescription").val();
+            var useCharacter = $("#useCharacter").is(':checked') ? true:undefined;
+            console.log(projectname);
+            $.post("{base_url}project/create",
+                {
+                    projectname: projectname,
+                    description: description,
+                    type: type,
+                    media_type: "MOVIE",
+                    useCharacter: useCharacter
+                },
+                function(data){
+                    console.log(data);
+                    window.location.href = data.url;
+                });
         }
     });
 });
