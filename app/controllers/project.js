@@ -53,14 +53,18 @@ module.exports.controller = function(router) {
     router.post('/project/create', router.routeLogAccess, function(req, res) {
         var name = req.body.projectname && req.body.projectname.trim();
         var description = req.body.description;
+        var type = req.body.type == undefined ? 'child':req.body.type;
         var media_type = req.body.mediatype;
         var use_character = req.body.useCharacter == undefined ? false:true;
         var parent = null;
         var parent_project = null;
         var name_parent = null;
 
+        console.log(type);
+        console.log(name);
+
         if (name != '' || req.body.episode!='') {
-            if (media_type == 'EPISODE') {
+            if (type == 'child') {
                 parent = models.ObjectId(req.body.parent);
                 name = (req.body.episode && req.body.episode.trim());
             }
@@ -90,12 +94,18 @@ module.exports.controller = function(router) {
                         _manager: req.session.current_user._id,
                         _company: req.session.current_user._company._id,
                         _parent: parent,
-                        status: 'NONE'
+                        status: 'NONE',
+                        is_multiple: type=='multiple'?true:false
                     });
 
                     p.save().then(function(product) {
                         req.session.toast_message = 'Your project has been succesfully created.';
-                        res.redirect('/project/' + product._id + '/display');
+                        if(type=='child') {
+                            res.redirect('/project/' + product._id + '/display');
+                        }
+                        else {
+                            res.json({url: '/project/' + product._id + '/display'});
+                        }
                     })
                     .catch(function(err) {
                         console.error(err);
@@ -106,7 +116,12 @@ module.exports.controller = function(router) {
                 });
         } else {
             req.session.toast_message = 'You need to specify more your project.';
-            res.redirect('/project/');
+            if(type=='child') {
+                res.redirect('/project/');
+            }
+            else {
+                res.json({url: '/project/'});
+            }
         }
     });
 
