@@ -95,13 +95,13 @@ along with Captiz.  If not, see <http://www.gnu.org/licenses/>.-->
                           <i class="fa fa-list-ul" style="font-size:3em;margin-right:10px;"></i>
                       </div>
                       <div class="row-content">
-                        <h4 class="list-group-item-heading">Timecodes</h4>
+                        <h4 class="list-group-item-heading">Subtitles</h4>
                         <p class="list-group-item-text">
                           {@eq key=project.status value="ENCODING_FINISHED"}
                           {#project.video.url}
                           No timecode available yet.<br><br>
                           You should &nbsp;&nbsp;&nbsp;
-                          <a href="{base_url}project/{project._id}/timecodes" class="btn btn-primary">Add a timecode file</a>&nbsp;&nbsp;&nbsp; or &nbsp;&nbsp;&nbsp;
+                          <a href="{base_url}project/{project._id}/timecodes" class="btn btn-primary">Add a subtitle file</a>&nbsp;&nbsp;&nbsp; or &nbsp;&nbsp;&nbsp;
                           <a href="#invites" class="btn btn-primary">Invite a transcriptor</a>
                           {:else}
                           Set your video before uploading timecodes.
