@@ -115,6 +115,8 @@ along with Captiz.  If not, see <http://www.gnu.org/licenses/>.-->
 {<custom_js}
 <script src="{base_url}js/3rd/papaparse.min.js"></script>
 <script src="{base_url}js/3rd/srt.parser.min.js"></script>
+<script src="{base_url}js/3rd/vtt.min.js"></script>
+<script src="{base_url}js/3rd/moment-duration-format.js"></script>
 
 <script type="text/javascript">
 
@@ -375,6 +377,29 @@ $(document).ready(function(){
 			}
 	}
 
+	var apply_csvdata = function(){
+		if(typeof csv_data[0] == 'undefined')
+		{
+			$.notification({
+				content: "Error, your file is empty.",
+				timeout: 5000
+			});
+			$("#timecodeFile").val("");
+			$("#row_analysis").hide();
+		}
+		else{
+			update_table(csv_data);
+
+			$("thead > tr").html("");
+			$("thead > tbody").html("");
+			$("#delimiter_select_div").show();
+			$("#row_analysis").slideDown();
+			$("#info_csv_div").hide();
+			if("{convert}" == "convert"){
+				$("#submit_convert").text("Convert as CSV");
+			}
+		}
+	};
 	$("#timecodeFile").on("change", function(){
 		var name = $('#timecodeFile')[0].files[0].name;
 		if(name.slice(-3)=="csv"){
@@ -383,7 +408,7 @@ $(document).ready(function(){
 		else if(name.slice(-4)=="detx"){
 			parseDetx();
 		}
-		else if(name.slice(-3)=="srt") {
+		else if(name.slice(-3)=="srt" || name.slice(-3)=="vtt") {
 			if (!window.File || !window.FileReader || !window.FileList || !window.Blob) {
 				alert('The File APIs are not fully supported in this browser.');
 				return;
@@ -403,39 +428,35 @@ $(document).ready(function(){
 				file = input.files[0];
 				fr = new FileReader();
 				fr.onload = function(){
-					srt_data = parser.fromSrt(fr.result);
+					var data = fr.result;
 					csv_data = Array();
-					for(var i=0;i<srt_data.length;i++){
-						csv_data.push([srt_data[i].startTime, srt_data[i].endTime, srt_data[i].text]);
-					}
-
-					if(typeof csv_data[0] == 'undefined')
-					{
-						$.notification({
-							content: "Error, your file is empty.",
-							timeout: 5000
-						});
-						$("#timecodeFile").val("");
-						$("#row_analysis").hide();
-					}
-					else{
-						update_table(csv_data);
-
-						$("thead > tr").html("");
-						$("thead > tbody").html("");
-						$("#delimiter_select_div").show();
-						$("#row_analysis").slideDown();
-						$("#info_csv_div").hide();
-						if("{convert}" == "convert"){
-							$("#submit_convert").text("Convert as CSV");
+					if(name.slice(-3)=="srt") {
+						srt_data = parser.fromSrt(data);
+						for(var i=0;i<srt_data.length;i++){
+							csv_data.push([srt_data[i].startTime, srt_data[i].endTime, srt_data[i].text]);
 						}
+						apply_csvdata();
+					}
+					else if(name.slice(-3)=="vtt") {
+                        srt_data = "true";
+						var parser_vtt = new WebVTT.Parser(window, WebVTT.StringDecoder());
+						parser_vtt.oncue = function(cue){
+                            var start = moment.duration(parseFloat(cue.startTime), "seconds").format("hh:mm:ss,SSS", { trim: false });
+                            var end = moment.duration(parseFloat(cue.endTime), "seconds").format("hh:mm:ss,SSS", { trim: false });
+							csv_data.push([start, end, cue.text]);
+						};
+						parser_vtt.onflush = function(){
+							apply_csvdata();
+						};
+						parser_vtt.parse(data);
+						parser_vtt.flush();
 					}
 				};
 				fr.readAsText(file);
 			}
 		}
 		else{
-			alert("Wrong file extension (Only SRT or CSV)")
+			alert("Wrong file extension (Only SRT, VTT or CSV)")
 		}
 	});
 
